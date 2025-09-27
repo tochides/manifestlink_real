@@ -1,3 +1,16 @@
+/* --- Guarantee nav-center and nav-menu visibility on mobile --- */
+@media (max-width: 900px) {
+    .nav-center {
+        display: block !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        position: static !important;
+        z-index: 9998 !important;
+    }
+    .nav-menu {
+        display: flex !important;
+    }
+}
 /* --- Mobile Nav Menu Overlay: Always visible, scrollable, and above all --- */
 @media (max-width: 900px) {
     .nav-menu {
