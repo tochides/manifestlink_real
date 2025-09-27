@@ -142,6 +142,21 @@ if (isset($_GET['email']) && !empty($_GET['email'])) {
     
     <!-- User-Friendly Navigation Styles (Same as index.html) -->
     <style>
+        /* Center registration form vertically and horizontally */
+        .registration-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        .registration-section > .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 0;
+        }
         /* Prevent horizontal scroll and force vertical-only scrolling (inline) */
         html, body {
             max-width: 100vw;
