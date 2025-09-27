@@ -1480,4 +1480,6 @@ if (isset($_GET['email']) && !empty($_GET['email'])) {
         });
     </script>
 </body>
-</html> 
+    <!-- Navigation JS for enhanced nav behavior -->
+    <script src="js/navigation.js?v=<?php echo time(); ?>"></script>
+</html>
