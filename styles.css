@@ -1,3 +1,8 @@
+@media (max-width: 480px) {
+    .hero-container {
+        flex-direction: column-reverse !important;
+    }
+}
 /* --- Mobile fix for .qr-demo card and contents (Agent Patch) --- */
 @media (max-width: 480px) {
     .qr-demo {
