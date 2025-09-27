@@ -666,33 +666,50 @@ if (isset($_GET['email']) && !empty($_GET['email'])) {
         /* Responsive Design */
         @media (max-width: 768px) {
             .registration-card {
-                margin: 1rem !important;
-                padding: 2rem !important;
-                border-radius: 16px !important;
+                margin: 0.5rem !important;
+                padding: 1.2rem !important;
+                border-radius: 12px !important;
+                max-width: 98vw !important;
             }
-            
             .registration-header h1 {
-                font-size: 2rem !important;
+                font-size: 1.3rem !important;
+                margin-bottom: 0.5rem !important;
             }
-            
+            .registration-header p {
+                font-size: 0.95rem !important;
+            }
             .form-row {
                 grid-template-columns: 1fr !important;
-                gap: 1rem !important;
+                gap: 0.5rem !important;
             }
-            
+            .form-group {
+                margin-bottom: 1rem !important;
+            }
+            .form-group label {
+                font-size: 0.98rem !important;
+                margin-bottom: 0.4rem !important;
+            }
+            .form-group input,
+            .form-group textarea,
+            .form-group select {
+                font-size: 1rem !important;
+                padding: 0.7rem 0.8rem !important;
+            }
             .form-actions {
                 flex-direction: column !important;
+                gap: 0.7rem !important;
+                margin-top: 1.2rem !important;
+                padding-top: 1.2rem !important;
             }
-            
             .btn {
                 width: 100% !important;
+                font-size: 1rem !important;
+                padding: 0.9rem 1.2rem !important;
             }
-            
             .toast-container {
                 right: 10px !important;
                 left: 10px !important;
             }
-            
             .toast {
                 min-width: auto !important;
                 max-width: none !important;
@@ -701,18 +718,21 @@ if (isset($_GET['email']) && !empty($_GET['email'])) {
         
         @media (max-width: 480px) {
             .registration-card {
-                padding: 1.5rem !important;
-                margin: 0.5rem !important;
+                padding: 0.7rem !important;
+                margin: 0.2rem !important;
+                border-radius: 8px !important;
             }
-            
             .registration-header h1 {
-                font-size: 1.75rem !important;
+                font-size: 1.08rem !important;
             }
-            
+            .registration-header p {
+                font-size: 0.85rem !important;
+            }
             .form-group input,
             .form-group textarea,
             .form-group select {
-                padding: 0.875rem 1rem !important;
+                padding: 0.6rem 0.7rem !important;
+                font-size: 0.98rem !important;
             }
         }
         
