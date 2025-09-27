@@ -1,3 +1,16 @@
+/* --- FORCE hero-content above hero-visual (QR card) on mobile with max specificity --- */
+@media (max-width: 600px) {
+    section.hero > .hero-container {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    section.hero > .hero-container > .hero-content {
+        order: 1 !important;
+    }
+    section.hero > .hero-container > .hero-visual {
+        order: 2 !important;
+    }
+}
 /* --- Ensure hero-content is always above hero-visual (QR card) on mobile --- */
 @media (max-width: 600px) {
     .hero-container {
