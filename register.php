@@ -121,7 +121,7 @@ if (isset($_GET['email']) && !empty($_GET['email'])) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Passenger Registration - ManifestLink</title>
     <meta name="description" content="Register for your maritime journey with ManifestLink. Quick and secure passenger registration for Guimaras Port.">
     
@@ -142,6 +142,11 @@ if (isset($_GET['email']) && !empty($_GET['email'])) {
     
     <!-- User-Friendly Navigation Styles (Same as index.html) -->
     <style>
+        /* Prevent horizontal scroll and force vertical-only scrolling */
+        html, body {
+            max-width: 100vw;
+            overflow-x: hidden !important;
+        }
         /* Add right margin to nav logo for desktop spacing */
         @media (min-width: 900px) {
             .nav-logo {
