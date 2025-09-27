@@ -16,12 +16,16 @@
         padding-right: 5vw;
         max-width: 100vw;
         box-sizing: border-box;
+        text-align: center;
     }
     img, .logo-img, .image-placeholder, .qr-code, .card-icon, .feature-icon {
         max-width: 100%;
         height: auto;
         width: 100%;
         box-sizing: border-box;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
     }
     .hero-title, .section-header h2, .about-text h2, .register-header-content h1 {
         font-size: 2rem;
@@ -34,6 +38,7 @@
     .qr-demo, .action-card, .feature-card, .contact-form-container {
         padding: 1.2rem !important;
         border-radius: 12px !important;
+        text-align: center;
     }
     .footer {
         padding: 40px 0 20px !important;
@@ -45,6 +50,11 @@
     .nav-menu {
         top: 60px !important;
         padding: 2rem 0 !important;
+    }
+    /* Center all direct children of .container on mobile */
+    .container > * {
+        margin-left: auto !important;
+        margin-right: auto !important;
     }
 }
 body {
