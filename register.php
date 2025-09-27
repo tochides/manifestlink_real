@@ -1219,6 +1219,38 @@ if (isset($_GET['email']) && !empty($_GET['email'])) {
 </head>
 <body>
 
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo" aria-label="ManifestLink Home">
+                <img src="logo.png" alt="ManifestLink Logo" class="logo-img">
+                <span class="logo-text">ManifestLink</span>
+            </a>
+            <div class="nav-center">
+                <ul class="nav-menu" role="menubar">
+                    <li role="none"><a href="#home" class="nav-link nav-btn active" role="menuitem">Home</a></li>
+                    <li role="none"><a href="#features" class="nav-link nav-btn" role="menuitem">Features</a></li>
+                    <li role="none"><a href="#guide" class="nav-link nav-btn" role="menuitem">Guide</a></li>
+                    <li role="none"><a href="#about" class="nav-link nav-btn" role="menuitem">About</a></li>
+                    <li role="none"><a href="#contact" class="nav-link nav-btn" role="menuitem">Contact</a></li>
+                </ul>
+            </div>
+            <div class="nav-right">
+                <!-- Language Switcher -->
+                <div class="language-switcher">
+                    <button class="lang-btn nav-btn" id="langToggle" aria-label="Switch Language">
+                        <i class="fas fa-globe"></i>
+                        <span id="currentLang">EN</span>
+                    </button>
+                </div>
+                <div class="hamburger" aria-label="Toggle navigation menu" role="button" tabindex="0">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
 
     <!-- Professional Registration Form -->
     <section class="registration-section">
