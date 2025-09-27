@@ -697,6 +697,24 @@ if (isset($_GET['email']) && !empty($_GET['email'])) {
                 border-radius: 8px !important;
                 max-width: 85vw !important;
             }
+            .registration-header {
+                margin-bottom: 1rem !important;
+                padding-bottom: 0.7rem !important;
+            }
+            .divider {
+                margin: 1rem 0 !important;
+            }
+            .form-group {
+                margin-bottom: 0.5rem !important;
+            }
+            .form-actions {
+                margin-top: 0.7rem !important;
+                padding-top: 0.7rem !important;
+            }
+            .form-footer {
+                margin-top: 0.7rem !important;
+                padding-top: 0.5rem !important;
+            }
             .registration-header h1 {
                 font-size: 1.3rem !important;
                 margin-bottom: 0.5rem !important;
@@ -744,10 +762,28 @@ if (isset($_GET['email']) && !empty($_GET['email'])) {
         
         @media (max-width: 480px) {
             .registration-card {
-                padding: 0.15rem 0.05rem !important;
+                padding: 0.1rem 0.02rem !important;
                 margin: 0 !important;
                 border-radius: 6px !important;
                 max-width: 90vw !important;
+            }
+            .registration-header {
+                margin-bottom: 0.5rem !important;
+                padding-bottom: 0.3rem !important;
+            }
+            .divider {
+                margin: 0.5rem 0 !important;
+            }
+            .form-group {
+                margin-bottom: 0.25rem !important;
+            }
+            .form-actions {
+                margin-top: 0.3rem !important;
+                padding-top: 0.3rem !important;
+            }
+            .form-footer {
+                margin-top: 0.3rem !important;
+                padding-top: 0.2rem !important;
             }
             .registration-header h1 {
                 font-size: 1.08rem !important;
