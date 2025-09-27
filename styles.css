@@ -1,3 +1,65 @@
+/* --- About Section: Modern Mobile Card & Badge Look --- */
+@media (max-width: 600px) {
+    .about-content {
+        background: rgba(255,255,255,0.92);
+        border-radius: 18px;
+        box-shadow: 0 6px 32px rgba(135,206,235,0.13);
+        padding: 2.2rem 1.2rem 1.5rem 1.2rem !important;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .about-text h2 {
+        background: linear-gradient(90deg, #40E0D0 10%, #87CEEB 90%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
+        font-weight: 900 !important;
+        letter-spacing: -1.5px;
+        margin-bottom: 1.5rem !important;
+    }
+    .about-text h3 {
+        color: #2C3E50 !important;
+        font-weight: 700 !important;
+        margin-bottom: 0.5rem !important;
+    }
+    .about-text p, .about-text ul {
+        color: #4a5568 !important;
+        font-size: 1.05rem !important;
+        margin-bottom: 1.1rem !important;
+    }
+    .about-text ul {
+        background: #f7fafc;
+        border-radius: 10px;
+        padding: 0.7rem 1.2rem !important;
+        margin-bottom: 1.2rem !important;
+        box-shadow: 0 2px 8px rgba(135,206,235,0.07);
+    }
+    .about-visual {
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    .compliance-badges {
+        gap: 1rem !important;
+    }
+    .badge {
+        background: linear-gradient(90deg, #e0f7fa 60%, #f0f8ff 100%);
+        border: 1.5px solid #b0e0e6;
+        box-shadow: 0 2px 12px rgba(64,224,208,0.08);
+        color: #2C3E50 !important;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        transition: box-shadow 0.2s;
+    }
+    .badge i {
+        color: #40E0D0 !important;
+        filter: drop-shadow(0 1px 2px #b0e0e6);
+    }
+    .badge:hover {
+        box-shadow: 0 6px 24px rgba(64,224,208,0.18);
+        border-color: #40E0D0;
+    }
+}
 /* --- Enhanced About Section Mobile Layout --- */
 @media (max-width: 600px) {
     .about {
