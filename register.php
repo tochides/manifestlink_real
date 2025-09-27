@@ -692,7 +692,7 @@ if (isset($_GET['email']) && !empty($_GET['email'])) {
         /* Responsive Design */
         @media (max-width: 768px) {
             .registration-card {
-                margin: 2.8rem 0.2rem 0.2rem 0.2rem !important;
+                margin: 4.2rem 0.2rem 0.2rem 0.2rem !important;
                 padding: 0.3rem 0.1rem !important;
                 border-radius: 8px !important;
                 max-width: 85vw !important;
@@ -763,7 +763,7 @@ if (isset($_GET['email']) && !empty($_GET['email'])) {
         @media (max-width: 480px) {
             .registration-card {
                 padding: 0.1rem 0.02rem !important;
-                margin: 2.8rem 0 0 0 !important;
+                margin: 4.2rem 0 0 0 !important;
                 border-radius: 6px !important;
                 max-width: 90vw !important;
             }
