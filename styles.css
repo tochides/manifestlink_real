@@ -1,3 +1,6 @@
+body {
+    overflow-x: hidden;
+}
 
 :root {
     --color-sky-blue: #87CEEB;
