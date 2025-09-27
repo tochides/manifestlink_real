@@ -22,6 +22,35 @@
     
     <!-- User-Friendly Navigation Styles -->
     <style>
+        /* Restore language button styles */
+        .lang-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            padding: clamp(8px, 1vw, 12px) clamp(14px, 1.5vw, 20px);
+            cursor: pointer;
+            font-size: clamp(13px, 1.2vw, 15px);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 3px 12px rgba(102, 126, 234, 0.3);
+            white-space: nowrap;
+        }
+        .lang-btn:hover, .lang-btn:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        }
+        .lang-btn i {
+            font-size: clamp(15px, 1.3vw, 17px);
+        }
+        .lang-btn span {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
         /* --- NAVIGATION CSS MOVED TO styles.css FOR FULL CONTROL --- */
         /* See styles.css for all nav, nav-menu, nav-link, hamburger, and mobile nav styles. */
         
