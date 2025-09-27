@@ -142,96 +142,94 @@ if (isset($_GET['email']) && !empty($_GET['email'])) {
     
     <!-- User-Friendly Navigation Styles (Same as index.html) -->
     <style>
-        /* NAVIGATION: Only logo and language switcher, inline and centered on mobile */
-        .navbar {
-            background: rgba(255,255,255,0.85);
-            border-bottom: 1px solid #e5e7eb;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+        /* Add right margin to nav logo for desktop spacing */
+        @media (min-width: 900px) {
+            .nav-logo {
+                margin-right: 2.5rem;
+            }
         }
-        .nav-container {
-            display: flex;
+        /* Force Register Now button text in nav to be white */
+        .btn-register,
+        .btn-register span,
+        .btn-register i {
+            color: #fff !important;
+        }
+        /* Uniform navbar button sizing */
+        .nav-btn {
+            min-width: 120px;
+            height: 44px;
+            font-size: 1.05rem;
+            padding: 0.7rem 1.5rem;
+            box-sizing: border-box;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            max-width: 100vw;
-            padding: 0.5rem 1rem;
-            height: 64px;
+            border-radius: 25px;
+            font-weight: 600;
         }
-        .nav-logo {
-            display: flex;
+        .nav-link, .btn-register, .lang-btn {
+            min-width: 120px;
+            height: 44px;
+            font-size: 1.05rem;
+            padding: 0.7rem 1.5rem;
+            box-sizing: border-box;
+            display: inline-flex;
             align-items: center;
-            gap: 0.75rem;
-            text-decoration: none;
-            color: #1e293b;
-            font-weight: 800;
-            font-size: 1.4rem;
+            justify-content: center;
+            border-radius: 25px;
+            font-weight: 600;
         }
-        .logo-img {
-            width: 40px;
-            height: 40px;
-        }
+        /* Restore nav-right and language-switcher layout for language button */
         .nav-right {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-left: 1.5rem;
+            gap: 18px;
+            margin-left: auto;
         }
         .language-switcher {
             display: flex;
             align-items: center;
         }
+        /* Restore language button styles */
         .lang-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
             border-radius: 25px;
             color: white;
-            padding: 8px 18px;
+            padding: clamp(8px, 1vw, 12px) clamp(14px, 1.5vw, 20px);
             cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
+            font-size: clamp(13px, 1.2vw, 15px);
+            font-weight: 500;
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 3px 12px rgba(102, 126, 234, 0.15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 3px 12px rgba(102, 126, 234, 0.3);
             white-space: nowrap;
-            transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
         }
         .lang-btn:hover, .lang-btn:focus {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.18);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
             background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
         }
         .lang-btn i {
-            font-size: 1.1rem;
+            font-size: clamp(15px, 1.3vw, 17px);
         }
         .lang-btn span {
             font-weight: 600;
             letter-spacing: 0.5px;
         }
-        @media (max-width: 600px) {
-            .nav-container {
-                flex-direction: row;
-                justify-content: center;
-                height: 56px;
-                padding: 0.25rem 0.5rem;
-            }
-            .nav-logo {
-                font-size: 1.1rem;
-            }
-            .logo-img {
-                width: 32px;
-                height: 32px;
-            }
-            .nav-right {
-                margin-left: 0.75rem;
-                gap: 8px;
-            }
-            .lang-btn {
-                font-size: 0.95rem;
-                padding: 6px 12px;
-            }
+        /* Desktop nav alignment fix */
+        .nav-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
         }
     </style>
     
