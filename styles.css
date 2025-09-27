@@ -1,3 +1,76 @@
+/* --- PERFECTLY CENTERED MOBILE NAV MENU --- */
+@media (max-width: 900px) {
+    .nav-menu {
+        min-height: 60vh !important;
+        height: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 4.5rem 0.5rem 3rem 0.5rem !important;
+        gap: 1.2rem !important;
+        background: linear-gradient(135deg, #f0f8ff 0%, #e0f7fa 100%) !important;
+        box-shadow: 0 12px 48px rgba(135,206,235,0.18);
+        border-radius: 22px !important;
+        border: 1.5px solid #b0e0e6;
+        z-index: 10999 !important;
+    }
+    .nav-link {
+        font-size: 1.25rem !important;
+        font-weight: 600 !important;
+        color: #3182ce !important;
+        width: 90%;
+        text-align: center;
+        padding: 1.1rem 0 !important;
+        border-radius: 12px !important;
+        background: none !important;
+        border: none !important;
+        margin: 0 !important;
+        letter-spacing: 0.2px;
+        transition: background 0.18s, color 0.18s;
+    }
+    .nav-link:hover, .nav-link:focus {
+        background: #e6f7fa !important;
+        color: #2b6cb0 !important;
+    }
+    .btn-register {
+        background: linear-gradient(135deg, #3182ce 0%, #2b6cb0 100%) !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+        border-radius: 18px !important;
+        box-shadow: 0 2px 8px rgba(49,130,206,0.09);
+        width: 90%;
+        margin: 0 auto !important;
+    }
+    .hamburger {
+        z-index: 11000 !important;
+        display: flex !important;
+        position: fixed !important;
+        top: 18px !important;
+        right: 18px !important;
+        background: rgba(255,255,255,0.85);
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(44,62,80,0.10);
+        padding: 0.7rem;
+        width: 48px;
+        height: 48px;
+        align-items: center;
+        justify-content: center;
+    }
+    .hamburger.active:after {
+        content: '\00d7';
+        position: absolute;
+        top: 10px;
+        right: 14px;
+        font-size: 2.2rem;
+        color: #3182ce;
+        font-weight: bold;
+        background: none;
+        border: none;
+        z-index: 11001;
+        pointer-events: none;
+    }
+}
 /* --- NAV MENU ALIGNMENT & SITE STYLE FIX --- */
 @media (max-width: 900px) {
     .nav-menu {
