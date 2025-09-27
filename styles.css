@@ -1,3 +1,66 @@
+/* --- MODERN GLASS MOBILE NAV DESIGN --- */
+@media (max-width: 900px) {
+    .nav-menu {
+        background: rgba(255,255,255,0.85) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border-radius: 0 0 24px 24px !important;
+        box-shadow: 0 12px 40px rgba(44,62,80,0.18) !important;
+        margin: 0 auto !important;
+        padding-top: 2.5rem !important;
+        padding-bottom: 2.5rem !important;
+        border: 1.5px solid #e0e7ef !important;
+        animation: navDropIn 0.25s cubic-bezier(.4,2,.6,1) both;
+    }
+    @keyframes navDropIn {
+        0% { transform: translateY(-40px); opacity: 0; }
+        100% { transform: translateY(0); opacity: 1; }
+    }
+    .nav-link {
+        font-size: 1.25rem !important;
+        font-weight: 600 !important;
+        color: #2C3E50 !important;
+        padding: 1.2rem 0 !important;
+        border-radius: 12px !important;
+        margin: 0.2rem 0 !important;
+        transition: background 0.18s, color 0.18s;
+    }
+    .nav-link:hover, .nav-link.active {
+        background: linear-gradient(90deg, #e0f7fa 60%, #f0f8ff 100%) !important;
+        color: #3182ce !important;
+    }
+    .btn-register {
+        margin-top: 1.5rem !important;
+        width: 85%;
+        font-size: 1.15rem !important;
+        padding: 1.1rem 0 !important;
+        border-radius: 18px !important;
+        box-shadow: 0 2px 8px rgba(49,130,206,0.13);
+        font-weight: 700 !important;
+        background: linear-gradient(90deg, #3182ce 60%, #40E0D0 100%) !important;
+        color: #fff !important;
+        border: none !important;
+    }
+    .nav-menu .close-nav {
+        position: absolute;
+        top: 18px;
+        right: 22px;
+        font-size: 2.1rem;
+        color: #3182ce;
+        background: none;
+        border: none;
+        cursor: pointer;
+        z-index: 12000;
+        padding: 0;
+        line-height: 1;
+        opacity: 0.85;
+        transition: opacity 0.18s;
+    }
+    .nav-menu .close-nav:hover {
+        opacity: 1;
+        color: #2b6cb0;
+    }
+}
 /* --- FINAL SUPER-SPECIFIC MOBILE NAV FIX --- */
 @media (max-width: 900px) {
     .nav-container, .nav-center, .nav-right {
