@@ -1,3 +1,52 @@
+/* --- Enhanced Mobile Flexibility --- */
+@media (max-width: 480px) {
+    body {
+        font-size: 15px;
+        padding: 0;
+        margin: 0;
+    }
+    .container,
+    .nav-container,
+    .hero-content,
+    .register-header-content,
+    .about-content,
+    .contact-content,
+    .footer-content {
+        padding-left: 5vw;
+        padding-right: 5vw;
+        max-width: 100vw;
+        box-sizing: border-box;
+    }
+    img, .logo-img, .image-placeholder, .qr-code, .card-icon, .feature-icon {
+        max-width: 100%;
+        height: auto;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .hero-title, .section-header h2, .about-text h2, .register-header-content h1 {
+        font-size: 2rem;
+        word-break: break-word;
+    }
+    .hero-content, .register-header-content, .about-content, .contact-content, .footer-content {
+        grid-template-columns: 1fr !important;
+        gap: 2rem !important;
+    }
+    .qr-demo, .action-card, .feature-card, .contact-form-container {
+        padding: 1.2rem !important;
+        border-radius: 12px !important;
+    }
+    .footer {
+        padding: 40px 0 20px !important;
+    }
+    .footer-logo .logo-img {
+        height: 30px !important;
+        margin-right: 8px !important;
+    }
+    .nav-menu {
+        top: 60px !important;
+        padding: 2rem 0 !important;
+    }
+}
 body {
     overflow-x: hidden;
 }
