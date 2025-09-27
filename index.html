@@ -22,6 +22,31 @@
     
     <!-- User-Friendly Navigation Styles -->
     <style>
+        /* Uniform navbar button sizing */
+        .nav-btn {
+            min-width: 120px;
+            height: 44px;
+            font-size: 1.05rem;
+            padding: 0.7rem 1.5rem;
+            box-sizing: border-box;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 25px;
+            font-weight: 600;
+        }
+        .nav-link, .btn-register, .lang-btn {
+            min-width: 120px;
+            height: 44px;
+            font-size: 1.05rem;
+            padding: 0.7rem 1.5rem;
+            box-sizing: border-box;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 25px;
+            font-weight: 600;
+        }
         /* Restore nav-right and language-switcher layout for language button */
         .nav-right {
             display: flex;
@@ -256,19 +281,19 @@
             
             <div class="nav-center">
                 <ul class="nav-menu" role="menubar">
-                    <li role="none"><a href="#home" class="nav-link active" role="menuitem">Home</a></li>
-                    <li role="none"><a href="#features" class="nav-link" role="menuitem">Features</a></li>
-                    <li role="none"><a href="#guide" class="nav-link" role="menuitem">Guide</a></li>
-                    <li role="none"><a href="#about" class="nav-link" role="menuitem">About</a></li>
-                    <li role="none"><a href="#contact" class="nav-link" role="menuitem">Contact</a></li>
-                    <li role="none"><a href="register.php" class="nav-link btn-register" role="menuitem" data-translate="nav.register">Register Now</a></li>
+                    <li role="none"><a href="#home" class="nav-link nav-btn active" role="menuitem">Home</a></li>
+                    <li role="none"><a href="#features" class="nav-link nav-btn" role="menuitem">Features</a></li>
+                    <li role="none"><a href="#guide" class="nav-link nav-btn" role="menuitem">Guide</a></li>
+                    <li role="none"><a href="#about" class="nav-link nav-btn" role="menuitem">About</a></li>
+                    <li role="none"><a href="#contact" class="nav-link nav-btn" role="menuitem">Contact</a></li>
+                    <li role="none"><a href="register.php" class="nav-link btn-register nav-btn" role="menuitem" data-translate="nav.register">Register Now</a></li>
                 </ul>
             </div>
             
             <div class="nav-right">
                 <!-- Language Switcher -->
                 <div class="language-switcher">
-                    <button class="lang-btn" id="langToggle" aria-label="Switch Language">
+                    <button class="lang-btn nav-btn" id="langToggle" aria-label="Switch Language">
                         <i class="fas fa-globe"></i>
                         <span id="currentLang">EN</span>
                     </button>
