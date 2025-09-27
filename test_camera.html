@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Camera Test</title>
+</head>
+<body>
+    <h2>Camera Test</h2>
+    <video id="video" width="400" height="300" autoplay playsinline></video>
+    <div id="msg" style="color:red; margin-top:10px;"></div>
+    <script>
+        const video = document.getElementById('video');
+        const msg = document.getElementById('msg');
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                })
+                .catch(function(err) {
+                    msg.textContent = 'Camera error: ' + err.name + ' - ' + err.message;
+                });
+        } else {
+            msg.textContent = 'getUserMedia not supported in this browser.';
+        }
+    </script>
+</body>
+</html> 

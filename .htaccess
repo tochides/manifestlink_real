@@ -1,0 +1,12 @@
+# Remove restrictive Content Security Policy
+Header unset Content-Security-Policy
+Header unset X-Content-Security-Policy
+Header unset X-WebKit-CSP
+
+# Allow all scripts for development
+Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:;"
+
+# Enable CORS for local development
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type" 

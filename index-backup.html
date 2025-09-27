@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ManifestLink - Automated QR-Enabled Passenger Manifest System</title>
+    <meta name="description" content="Streamline sea travel operations at Guimaras Port with ManifestLink's automated QR-enabled passenger manifest solution.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="logo.png">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css?v=1703123458">
+    
+    <!-- User-Friendly Navigation Styles -->
+    <style>
+        /* Modern, clean navigation with better colors */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 80px;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            position: relative;
+        }
+        
+        /* Logo section - modern styling */
+        .nav-logo {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #2d3748;
+            font-weight: 700;
+            font-size: 1.6rem;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-logo:hover {
+            color: #3182ce;
+            transform: scale(1.02);
+        }
+        
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+        }
+        
+        /* Center navigation - clean and modern */
+        .nav-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: clamp(1.5rem, 2.5vw, 3rem);
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            flex-wrap: nowrap;
+        }
+        
+        .nav-link {
+            color: #4a5568;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            position: relative;
+            background: transparent;
+        }
+        
+        .nav-link:hover {
+            color: #3182ce;
+            background: rgba(49, 130, 206, 0.08);
+            transform: translateY(-1px);
+        }
+        
+        .nav-link.active {
+            color: #3182ce;
+            background: rgba(49, 130, 206, 0.12);
+            font-weight: 600;
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 2px;
+            background: #3182ce;
+            border-radius: 1px;
+        }
+        
+        /* Register button - attractive call-to-action */
+        .btn-register {
+            background: linear-gradient(135deg, #3182ce 0%, #2b6cb0 100%);
+            color: white !important;
+            padding: 0.75rem 1.5rem !important;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 15px rgba(49, 130, 206, 0.3);
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-register:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 30px rgba(49, 130, 206, 0.5);
+            background: linear-gradient(135deg, #2c5282 0%, #2a4a7c 100%);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-register:active {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 0 4px 15px rgba(49, 130, 206, 0.4);
+        }
+        
+        /* Right section - clean layout */
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: clamp(12px, 1.5vw, 20px);
+            flex-shrink: 0;
+        }
+        
+        .language-switcher {
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Language button - modern design */
+        .lang-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            padding: clamp(8px, 1vw, 12px) clamp(14px, 1.5vw, 20px);
+            cursor: pointer;
+            font-size: clamp(13px, 1.2vw, 15px);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 3px 12px rgba(102, 126, 234, 0.3);
+            white-space: nowrap;
+        }
+        
+        .lang-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        }
+        
+        .lang-btn i {
+            font-size: clamp(15px, 1.3vw, 17px);
+        }
+        
+        .lang-btn span {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Hamburger menu - clean design */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: transparent;
+        }
+        
+        .hamburger:hover {
+            background: rgba(49, 130, 206, 0.08);
+        }
+        
+        .hamburger .bar {
+            width: 26px;
+            height: 3px;
+            background-color: #4a5568;
+            margin: 3px 0;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+        
+        .hamburger:hover .bar {
+            background-color: #3182ce;
+        }
+        
+        /* Responsive breakpoints with modern styling */
+        @media (max-width: 1200px) {
+            .nav-container {
+                padding: 0 1.25rem;
+            }
+            
+            .nav-menu {
+                gap: 2rem;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .nav-container {
+                padding: 0 1rem;
+            }
+            
+            .nav-center {
+                justify-content: flex-start;
+                margin-left: 20px;
+            }
+            
+            .nav-menu {
+                gap: 1.5rem;
+            }
+            
+            .nav-link {
+                padding: 0.6rem 0.8rem;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .nav-menu {
+                gap: 1.25rem;
+            }
+            
+            .nav-link {
+                font-size: 0.9rem;
+                padding: 0.5rem 0.7rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar {
+                background: rgba(255, 255, 255, 0.98);
+                box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15);
+            }
+            
+            .nav-container {
+                height: 70px;
+                padding: 0 1rem;
+            }
+            
+            .nav-center {
+                display: none;
+            }
+            
+            .nav-right {
+                gap: 15px;
+            }
+            
+            .hamburger {
+                display: flex;
+            }
+            
+            .lang-btn {
+                padding: 8px 14px;
+                font-size: 13px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .nav-container {
+                height: 65px;
+                padding: 0 0.75rem;
+            }
+            
+            .nav-right {
+                gap: 10px;
+            }
+            
+            .lang-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            .nav-logo {
+                font-size: 1.4rem;
+            }
+            
+            .logo-img {
+                width: 35px;
+                height: 35px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .nav-container {
+                padding: 0 0.5rem;
+            }
+            
+            .nav-right {
+                gap: 8px;
+            }
+            
+            .lang-btn {
+                padding: 5px 10px;
+                font-size: 11px;
+            }
+            
+            .lang-btn span {
+                display: none;
+            }
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .navbar {
+                background: rgba(26, 32, 44, 0.95);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .nav-logo {
+                color: #e2e8f0;
+            }
+            
+            .nav-logo:hover {
+                color: #63b3ed;
+            }
+            
+            .nav-link {
+                color: #a0aec0;
+            }
+            
+            .nav-link:hover {
+                color: #63b3ed;
+                background: rgba(99, 179, 237, 0.1);
+            }
+            
+            .nav-link.active {
+                color: #63b3ed;
+                background: rgba(99, 179, 237, 0.15);
+            }
+            
+            .hamburger .bar {
+                background-color: #a0aec0;
+            }
+            
+            .hamburger:hover .bar {
+                background-color: #63b3ed;
+            }
+        }
+        
+        /* Animation for language change */
+        [data-translate] {
+            transition: opacity 0.3s ease;
+        }
+        
+        .lang-changing [data-translate] {
+            opacity: 0.7;
+        }
+        
+        /* Ensure proper spacing on very wide screens */
+        @media (min-width: 1400px) {
+            .nav-container {
+                max-width: 1400px;
+            }
+            
+            .nav-menu {
+                gap: 3.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="bg-circle circle-1"></div>
+        <div class="bg-circle circle-2"></div>
+        <div class="bg-circle circle-3"></div>
+        <div class="bg-circle circle-4"></div>
+        <div class="bg-circle circle-5"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo" aria-label="ManifestLink Home">
+                <img src="logo.png" alt="ManifestLink Logo" class="logo-img">
+                <span class="logo-text">ManifestLink</span>
+            </a>
+            
+            <div class="nav-center">
+                <ul class="nav-menu" role="menubar">
+                    <li role="none"><a href="#home" class="nav-link active" role="menuitem">Home</a></li>
+                    <li role="none"><a href="#features" class="nav-link" role="menuitem">Features</a></li>
+                    <li role="none"><a href="#guide" class="nav-link" role="menuitem">Guide</a></li>
+                    <li role="none"><a href="#about" class="nav-link" role="menuitem">About</a></li>
+                    <li role="none"><a href="#contact" class="nav-link" role="menuitem">Contact</a></li>
+                    <li role="none"><a href="register.php" class="nav-link btn-register" role="menuitem" data-translate="nav.register">Register Now</a></li>
+                </ul>
+            </div>
+            
+            <div class="nav-right">
+                <!-- Language Switcher -->
+                <div class="language-switcher">
+                    <button class="lang-btn" id="langToggle" aria-label="Switch Language">
+                        <i class="fas fa-globe"></i>
+                        <span id="currentLang">EN</span>
+                    </button>
+                </div>
+                
+                <div class="hamburger" aria-label="Toggle navigation menu" role="button" tabindex="0">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title" data-translate="hero.title">
+                    Streamline Sea Travel with 
+                    <span class="highlight">ManifestLink</span>
+                </h1>
+                <p class="hero-subtitle" data-translate="hero.subtitle">
+                    Automated QR-enabled passenger manifest solution designed to revolutionize sea travel operations at Guimaras Port. Experience faster boarding, enhanced security, and seamless passenger management.
+                </p>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">50%</span>
+                        <span class="stat-label" data-translate="hero.stats.faster">Faster Processing</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">99.9%</span>
+                        <span class="stat-label" data-translate="hero.stats.accuracy">Accuracy Rate</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="qr-demo">
+                    <div class="qr-code">
+                        <div class="qr-icon">
+                            <i class="fas fa-qrcode"></i>
+                            <div class="qr-glow"></div>
+                        </div>
+                    </div>
+                    <div class="scan-animation"></div>
+                    <div class="qr-info">
+                        <h3 data-translate="hero.qr.title">Get Your QR Code</h3>
+                        <p data-translate="hero.qr.description">Register now to receive your personalized QR code for seamless boarding</p>
+                    </div>
+                    <div class="qr-action">
+                        <a href="register.php" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i>
+                            <span data-translate="hero.qr.button">Register Now</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 data-translate="features.title">Key Features</h2>
+                <p data-translate="features.subtitle">Discover how ManifestLink transforms passenger management</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <h3 data-translate="features.qr.title">QR Code Integration</h3>
+                    <p data-translate="features.qr.description">Instant QR code generation for passengers with secure scanning capabilities for staff.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3 data-translate="features.realtime.title">Real-time Updates</h3>
+                    <p data-translate="features.realtime.description">Live manifest tracking with instant updates across all connected devices and systems.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 data-translate="features.security.title">Enhanced Security</h3>
+                    <p data-translate="features.security.description">Role-based access control and data encryption ensuring passenger information protection.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 data-translate="features.mobile.title">Mobile Responsive</h3>
+                    <p data-translate="features.mobile.description">Optimized for all devices with offline capabilities for low-connectivity scenarios.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 data-translate="features.analytics.title">Analytics Dashboard</h3>
+                    <p data-translate="features.analytics.description">Comprehensive reporting tools for passenger counts, processing times, and system performance.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-gavel"></i>
+                    </div>
+                    <h3 data-translate="features.compliance.title">Compliance Ready</h3>
+                    <p data-translate="features.compliance.description">Full compliance with Data Privacy Act (RA 10173) and maritime industry standards.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="guide" class="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2 data-translate="guide.title">How ManifestLink Works</h2>
+                <p data-translate="guide.subtitle">Simple three-step process for seamless passenger management</p>
+            </div>
+            <div class="steps-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3 data-translate="guide.step1.title">Pre-registration</h3>
+                        <p data-translate="guide.step1.description">Passengers register online with their details and receive a unique QR code.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3 data-translate="guide.step2.title">QR Scan</h3>
+                        <p data-translate="guide.step2.description">Staff scan QR codes at the port for instant passenger verification and manifest update.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3 data-translate="guide.step3.title">Real-time Tracking</h3>
+                        <p data-translate="guide.step3.description">Live manifest updates provide accurate passenger counts and boarding status.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How to Use Section -->
+    <section class="how-to-use">
+        <div class="container">
+            <div class="section-header">
+                <h2 data-translate="howto.title">How to Use ManifestLink</h2>
+                <p data-translate="howto.subtitle">Complete guide for passengers and port staff</p>
+            </div>
+            
+            <!-- For Passengers -->
+            <div class="usage-section">
+                <div class="usage-header">
+                    <h3><i class="fas fa-user"></i> <span data-translate="howto.passengers.title">For Passengers</span></h3>
+                    <p data-translate="howto.passengers.subtitle">Follow these steps to register and use your QR code</p>
+                </div>
+                <div class="usage-steps">
+                    <div class="usage-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4 data-translate="howto.passengers.step1.title">Register Online</h4>
+                            <p data-translate="howto.passengers.step1.description">Fill out the pre-registration form with your personal details, travel information, and ID details.</p>
+                        </div>
+                    </div>
+                    <div class="usage-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4 data-translate="howto.passengers.step2.title">Receive QR Code</h4>
+                            <p data-translate="howto.passengers.step2.description">After successful registration, you'll receive a unique QR code containing your travel information.</p>
+                        </div>
+                    </div>
+                    <div class="usage-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4 data-translate="howto.passengers.step3.title">Present at Port</h4>
+                            <p data-translate="howto.passengers.step3.description">Show your QR code to port staff for scanning and verification during boarding.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- For Port Staff -->
+            <div class="usage-section">
+                <div class="usage-header">
+                    <h3><i class="fas fa-users-cog"></i> <span data-translate="howto.staff.title">For Port Staff</span></h3>
+                    <p data-translate="howto.staff.subtitle">Manage passenger manifests and scan QR codes efficiently</p>
+                </div>
+                <div class="usage-steps">
+                    <div class="usage-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4 data-translate="howto.staff.step1.title">Access Staff Portal</h4>
+                            <p data-translate="howto.staff.step1.description">Log into the secure staff portal using your assigned credentials and role-based access.</p>
+                        </div>
+                    </div>
+                    <div class="usage-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4 data-translate="howto.staff.step2.title">Scan QR Codes</h4>
+                            <p data-translate="howto.staff.step2.description">Use the QR scanner to verify passenger information and update the manifest.</p>
+                        </div>
+                    </div>
+                    <div class="usage-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4 data-translate="howto.staff.step3.title">Generate Reports</h4>
+                            <p data-translate="howto.staff.step3.description">Access comprehensive reports and analytics for operational insights.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips and Best Practices -->
+            <div class="tips-section">
+                <h3><i class="fas fa-lightbulb"></i> <span data-translate="howto.tips.title">Tips & Best Practices</span></h3>
+                <div class="tips-grid">
+                    <div class="tip-card">
+                        <div class="tip-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h4 data-translate="howto.tips.passengers.title">For Passengers</h4>
+                        <ul>
+                            <li data-translate="howto.tips.passengers.tip1">Register at least 24 hours before travel</li>
+                            <li data-translate="howto.tips.passengers.tip2">Keep your QR code easily accessible</li>
+                            <li data-translate="howto.tips.passengers.tip3">Have your government ID ready</li>
+                            <li data-translate="howto.tips.passengers.tip4">Arrive at port 30 minutes before departure</li>
+                        </ul>
+                    </div>
+                    <div class="tip-card">
+                        <div class="tip-icon">
+                            <i class="fas fa-tablet-alt"></i>
+                        </div>
+                        <h4 data-translate="howto.tips.staff.title">For Staff</h4>
+                        <ul>
+                            <li data-translate="howto.tips.staff.tip1">Ensure good lighting for QR scanning</li>
+                            <li data-translate="howto.tips.staff.tip2">Verify passenger ID matches QR data</li>
+                            <li data-translate="howto.tips.staff.tip3">Handle manual entries carefully</li>
+                            <li data-translate="howto.tips.staff.tip4">Report technical issues immediately</li>
+                        </ul>
+                    </div>
+                    <div class="tip-card">
+                        <div class="tip-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h4 data-translate="howto.tips.security.title">Security & Privacy</h4>
+                        <ul>
+                            <li data-translate="howto.tips.security.tip1">All data is encrypted and secure</li>
+                            <li data-translate="howto.tips.security.tip2">Compliant with RA 10173 (Data Privacy Act)</li>
+                            <li data-translate="howto.tips.security.tip3">Access logs are maintained</li>
+                            <li data-translate="howto.tips.security.tip4">Regular security audits conducted</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>About ManifestLink</h2>
+                    <p>ManifestLink is an innovative automated passenger manifest system designed specifically for Guimaras Port operations. Our solution addresses the challenges of traditional paper-based manifest systems by leveraging QR technology and real-time data management.</p>
+                    
+                    <h3>Project Rationale</h3>
+                    <p>Traditional passenger manifest systems are time-consuming, error-prone, and lack real-time visibility. ManifestLink eliminates these inefficiencies while ensuring compliance with maritime regulations and data privacy laws.</p>
+                    
+                    <h3>Technical Specifications</h3>
+                    <ul>
+                        <li>Frontend: HTML5, CSS3, JavaScript with React.js</li>
+                        <li>Backend: Node.js with Express.js</li>
+                        <li>Database: MongoDB for real-time data management</li>
+                        <li>QR Integration: ZXing library for scanning/generation</li>
+                        <li>Security: HTTPS, JWT authentication, data encryption</li>
+                    </ul>
+                </div>
+                <div class="about-visual">
+                    <div class="compliance-badges">
+                        <div class="badge">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>RA 10173 Compliant</span>
+                        </div>
+                        <div class="badge">
+                            <i class="fas fa-anchor"></i>
+                            <span>Maritime Standards</span>
+                        </div>
+                        <div class="badge">
+                            <i class="fas fa-lock"></i>
+                            <span>Data Encrypted</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-header">
+                <h2>Get in Touch</h2>
+                <p>Have questions about ManifestLink? We're here to help.</p>
+            </div>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <h4>Location</h4>
+                            <p>Guimaras Port, Philippines</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h4>Email</h4>
+                            <p>info@manifestlink.ph</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h4>Phone</h4>
+                            <p>+63 33 123 4567</p>
+                        </div>
+                    </div>
+                </div>
+                <form class="contact-form">
+                    <div class="form-group">
+                        <input type="text" placeholder="Your Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" placeholder="Your Email" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" placeholder="Subject" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea placeholder="Your Message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <a href="index.html" class="footer-logo">
+                        <img src="logo.png" alt="ManifestLink Logo" class="logo-img">
+                        ManifestLink
+                    </a>
+                    <p>
+                        Transforming maritime passenger management with cutting-edge QR technology. 
+                        Making travel safer, faster, and more efficient for everyone.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 ManifestLink. All rights reserved.</p>
+                <p>Designed and developed for Guimaras Port Authority</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js?v=<?php echo time(); ?>"></script>
+    
+    <!-- Language Translation Script -->
+    <script>
+        // Language data
+        const translations = {
+            en: {
+                // Navigation
+                'nav.register': 'Register Now',
+                
+                // Hero Section
+                'hero.title': 'Streamline Sea Travel with ManifestLink',
+                'hero.subtitle': 'Automated QR-enabled passenger manifest solution designed to revolutionize sea travel operations at Guimaras Port. Experience faster boarding, enhanced security, and seamless passenger management.',
+                'hero.stats.faster': 'Faster Processing',
+                'hero.stats.accuracy': 'Accuracy Rate',
+                'hero.qr.title': 'Get Your QR Code',
+                'hero.qr.description': 'Register now to receive your personalized QR code for seamless boarding',
+                'hero.qr.button': 'Register Now',
+                
+                // Features Section
+                'features.title': 'Key Features',
+                'features.subtitle': 'Discover how ManifestLink transforms passenger management',
+                'features.qr.title': 'QR Code Integration',
+                'features.qr.description': 'Instant QR code generation for passengers with secure scanning capabilities for staff.',
+                'features.realtime.title': 'Real-time Updates',
+                'features.realtime.description': 'Live manifest tracking with instant updates across all connected devices and systems.',
+                'features.security.title': 'Enhanced Security',
+                'features.security.description': 'Role-based access control and data encryption ensuring passenger information protection.',
+                'features.mobile.title': 'Mobile Responsive',
+                'features.mobile.description': 'Optimized for all devices with offline capabilities for low-connectivity scenarios.',
+                'features.analytics.title': 'Analytics Dashboard',
+                'features.analytics.description': 'Comprehensive reporting tools for passenger counts, processing times, and system performance.',
+                'features.compliance.title': 'Compliance Ready',
+                'features.compliance.description': 'Full compliance with Data Privacy Act (RA 10173) and maritime industry standards.',
+                
+                // Guide Section
+                'guide.title': 'How ManifestLink Works',
+                'guide.subtitle': 'Simple three-step process for seamless passenger management',
+                'guide.step1.title': 'Pre-registration',
+                'guide.step1.description': 'Passengers register online with their details and receive a unique QR code.',
+                'guide.step2.title': 'QR Scan',
+                'guide.step2.description': 'Staff scan QR codes at the port for instant passenger verification and manifest update.',
+                'guide.step3.title': 'Real-time Tracking',
+                'guide.step3.description': 'Live manifest updates provide accurate passenger counts and boarding status.',
+                
+                // How to Use Section
+                'howto.title': 'How to Use ManifestLink',
+                'howto.subtitle': 'Complete guide for passengers and port staff',
+                'howto.passengers.title': 'For Passengers',
+                'howto.passengers.subtitle': 'Follow these steps to register and use your QR code',
+                'howto.passengers.step1.title': 'Register Online',
+                'howto.passengers.step1.description': 'Fill out the pre-registration form with your personal details, travel information, and ID details.',
+                'howto.passengers.step2.title': 'Receive QR Code',
+                'howto.passengers.step2.description': 'After successful registration, you\'ll receive a unique QR code containing your travel information.',
+                'howto.passengers.step3.title': 'Present at Port',
+                'howto.passengers.step3.description': 'Show your QR code to port staff for scanning and verification during boarding.',
+                'howto.staff.title': 'For Port Staff',
+                'howto.staff.subtitle': 'Manage passenger manifests and scan QR codes efficiently',
+                'howto.staff.step1.title': 'Access Staff Portal',
+                'howto.staff.step1.description': 'Log into the secure staff portal using your assigned credentials and role-based access.',
+                'howto.staff.step2.title': 'Scan QR Codes',
+                'howto.staff.step2.description': 'Use the QR scanner to verify passenger information and update the manifest.',
+                'howto.staff.step3.title': 'Generate Reports',
+                'howto.staff.step3.description': 'Access comprehensive reports and analytics for operational insights.',
+                'howto.tips.title': 'Tips & Best Practices',
+                'howto.tips.passengers.title': 'For Passengers',
+                'howto.tips.passengers.tip1': 'Register at least 24 hours before travel',
+                'howto.tips.passengers.tip2': 'Keep your QR code easily accessible',
+                'howto.tips.passengers.tip3': 'Have your government ID ready',
+                'howto.tips.passengers.tip4': 'Arrive at port 30 minutes before departure',
+                'howto.tips.staff.title': 'For Staff',
+                'howto.tips.staff.tip1': 'Ensure good lighting for QR scanning',
+                'howto.tips.staff.tip2': 'Verify passenger ID matches QR data',
+                'howto.tips.staff.tip3': 'Handle manual entries carefully',
+                'howto.tips.staff.tip4': 'Report technical issues immediately',
+                'howto.tips.security.title': 'Security & Privacy',
+                'howto.tips.security.tip1': 'All data is encrypted and secure',
+                'howto.tips.security.tip2': 'Compliant with RA 10173 (Data Privacy Act)',
+                'howto.tips.security.tip3': 'Access logs are maintained',
+                'howto.tips.security.tip4': 'Regular security audits conducted'
+            },
+            fil: {
+                // Navigation
+                'nav.register': 'Magparehistro',
+                
+                // Hero Section
+                'hero.title': 'Gawing Mas Madali ang Paglalakbay sa Dagat gamit ang ManifestLink',
+                'hero.subtitle': 'Awtomatikong QR-enabled na sistema ng passenger manifest na idinisenyo upang baguhin ang operasyon ng paglalakbay sa dagat sa Guimaras Port. Makaranas ng mas mabilis na boarding, pinahusay na seguridad, at walang kahirap-hirap na pamamahala ng pasahero.',
+                'hero.stats.faster': 'Mas Mabilis na Proseso',
+                'hero.stats.accuracy': 'Rate ng Katumpakan',
+                'hero.qr.title': 'Kunin ang Inyong QR Code',
+                'hero.qr.description': 'Magparehistro ngayon upang matanggap ang inyong personalisadong QR code para sa walang kahirap-hirap na boarding',
+                'hero.qr.button': 'Magparehistro',
+                
+                // Features Section
+                'features.title': 'Mga Pangunahing Tampok',
+                'features.subtitle': 'Alamin kung paano binabago ng ManifestLink ang pamamahala ng pasahero',
+                'features.qr.title': 'QR Code Integration',
+                'features.qr.description': 'Instant na paggawa ng QR code para sa mga pasahero na may secure na scanning capabilities para sa staff.',
+                'features.realtime.title': 'Real-time na Updates',
+                'features.realtime.description': 'Live na manifest tracking na may instant updates sa lahat ng konektadong devices at systems.',
+                'features.security.title': 'Pinahusay na Seguridad',
+                'features.security.description': 'Role-based access control at data encryption na nagsisiguro ng proteksyon ng impormasyon ng pasahero.',
+                'features.mobile.title': 'Mobile Responsive',
+                'features.mobile.description': 'Optimized para sa lahat ng devices na may offline capabilities para sa low-connectivity scenarios.',
+                'features.analytics.title': 'Analytics Dashboard',
+                'features.analytics.description': 'Comprehensive na reporting tools para sa passenger counts, processing times, at system performance.',
+                'features.compliance.title': 'Compliance Ready',
+                'features.compliance.description': 'Buong compliance sa Data Privacy Act (RA 10173) at maritime industry standards.',
+                
+                // Guide Section
+                'guide.title': 'Paano Gumagana ang ManifestLink',
+                'guide.subtitle': 'Simpleng tatlong-hakbang na proseso para sa walang kahirap-hirap na pamamahala ng pasahero',
+                'guide.step1.title': 'Pre-registration',
+                'guide.step1.description': 'Ang mga pasahero ay nagre-register online gamit ang kanilang mga detalye at tumatanggap ng unique QR code.',
+                'guide.step2.title': 'QR Scan',
+                'guide.step2.description': 'Ang staff ay nag-scan ng QR codes sa port para sa instant passenger verification at manifest update.',
+                'guide.step3.title': 'Real-time Tracking',
+                'guide.step3.description': 'Live manifest updates ay nagbibigay ng tumpak na passenger counts at boarding status.',
+                
+                // How to Use Section
+                'howto.title': 'Paano Gamitin ang ManifestLink',
+                'howto.subtitle': 'Kumpletong gabay para sa mga pasahero at port staff',
+                'howto.passengers.title': 'Para sa mga Pasahero',
+                'howto.passengers.subtitle': 'Sundin ang mga hakbang na ito upang magparehistro at gamitin ang inyong QR code',
+                'howto.passengers.step1.title': 'Magparehistro Online',
+                'howto.passengers.step1.description': 'Punan ang pre-registration form gamit ang inyong personal na detalye, travel information, at ID details.',
+                'howto.passengers.step2.title': 'Tumanggap ng QR Code',
+                'howto.passengers.step2.description': 'Pagkatapos ng matagumpay na pagparehistro, makakatanggap kayo ng unique QR code na naglalaman ng inyong travel information.',
+                'howto.passengers.step3.title': 'Ipakita sa Port',
+                'howto.passengers.step3.description': 'Ipakita ang inyong QR code sa port staff para sa scanning at verification habang nag-boarding.',
+                'howto.staff.title': 'Para sa Port Staff',
+                'howto.staff.subtitle': 'Pamahalaan ang passenger manifests at i-scan ang QR codes nang mahusay',
+                'howto.staff.step1.title': 'I-access ang Staff Portal',
+                'howto.staff.step1.description': 'Mag-login sa secure staff portal gamit ang inyong assigned credentials at role-based access.',
+                'howto.staff.step2.title': 'I-scan ang QR Codes',
+                'howto.staff.step2.description': 'Gamitin ang QR scanner upang i-verify ang passenger information at i-update ang manifest.',
+                'howto.staff.step3.title': 'Gumawa ng Reports',
+                'howto.staff.step3.description': 'I-access ang comprehensive reports at analytics para sa operational insights.',
+                'howto.tips.title': 'Mga Tip at Best Practices',
+                'howto.tips.passengers.title': 'Para sa mga Pasahero',
+                'howto.tips.passengers.tip1': 'Magparehistro ng hindi bababa sa 24 oras bago ang paglalakbay',
+                'howto.tips.passengers.tip2': 'Panatilihing madaling ma-access ang inyong QR code',
+                'howto.tips.passengers.tip3': 'Maghanda ng inyong government ID',
+                'howto.tips.passengers.tip4': 'Dumating sa port 30 minuto bago ang departure',
+                'howto.tips.staff.title': 'Para sa Staff',
+                'howto.tips.staff.tip1': 'Siguraduhing may magandang ilaw para sa QR scanning',
+                'howto.tips.staff.tip2': 'I-verify na ang passenger ID ay tumugma sa QR data',
+                'howto.tips.staff.tip3': 'Maingat na hawakan ang manual entries',
+                'howto.tips.staff.tip4': 'I-report agad ang mga technical issues',
+                'howto.tips.security.title': 'Seguridad at Privacy',
+                'howto.tips.security.tip1': 'Lahat ng data ay naka-encrypt at secure',
+                'howto.tips.security.tip2': 'Compliant sa RA 10173 (Data Privacy Act)',
+                'howto.tips.security.tip3': 'Ang access logs ay naka-maintain',
+                'howto.tips.security.tip4': 'Regular na security audits ang ginagawa'
+            }
+        };
+
+        // Language switching functionality
+        let currentLanguage = localStorage.getItem('language') || 'en';
+
+        function updateLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('language', lang);
+            
+            // Update all elements with data-translate attribute
+            document.querySelectorAll('[data-translate]').forEach(element => {
+                const key = element.getAttribute('data-translate');
+                if (translations[lang] && translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+            
+            // Update language button
+            document.getElementById('currentLang').textContent = lang.toUpperCase();
+        }
+
+        // Initialize language on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateLanguage(currentLanguage);
+            
+            // Add click event to language switcher
+            document.getElementById('langToggle').addEventListener('click', function() {
+                const newLang = currentLanguage === 'en' ? 'fil' : 'en';
+                updateLanguage(newLang);
+            });
+        });
+    </script>
+</body>
+</html>
