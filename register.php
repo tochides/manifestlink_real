@@ -1515,7 +1515,6 @@ if (isset($_GET['email']) && !empty($_GET['email'])) {
                     <li role="none"><a href="index.html#guide" class="nav-link" role="menuitem">Guide</a></li>
                     <li role="none"><a href="index.html#about" class="nav-link" role="menuitem">About</a></li>
                     <li role="none"><a href="index.html#contact" class="nav-link" role="menuitem">Contact</a></li>
-                    <li role="none"><a href="register.php" class="nav-link btn-register" role="menuitem" data-translate="nav.register">Register Now</a></li>
                 </ul>
             </div>
             
