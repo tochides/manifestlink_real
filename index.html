@@ -807,27 +807,8 @@
         </div>
     </footer>
 
-        <script src="script.js?v=<?php echo time(); ?>"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                console.log('DOM loaded - debug');
-                var hamburger = document.querySelector('.hamburger');
-                var navMenu = document.querySelector('.nav-menu');
-                if (hamburger) {
-                    console.log('Hamburger found');
-                    hamburger.addEventListener('click', function() {
-                        console.log('Hamburger clicked');
-                    });
-                } else {
-                    console.log('Hamburger NOT found');
-                }
-                if (navMenu) {
-                    console.log('Nav menu found');
-                } else {
-                    console.log('Nav menu NOT found');
-                }
-            });
-        </script>
+            <script src="script.js?v=<?php echo time(); ?>"></script>
+            <script src="js/navigation.js?v=<?php echo time(); ?>"></script>
     
     <!-- Language Translation Script -->
     <script>
