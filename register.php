@@ -692,10 +692,10 @@ if (isset($_GET['email']) && !empty($_GET['email'])) {
         /* Responsive Design */
         @media (max-width: 768px) {
             .registration-card {
-                margin: 0.5rem !important;
-                padding: 0.7rem 0.5rem !important;
-                border-radius: 10px !important;
-                max-width: 95vw !important;
+                margin: 0.2rem !important;
+                padding: 0.3rem 0.1rem !important;
+                border-radius: 8px !important;
+                max-width: 85vw !important;
             }
             .registration-header h1 {
                 font-size: 1.3rem !important;
@@ -744,10 +744,10 @@ if (isset($_GET['email']) && !empty($_GET['email'])) {
         
         @media (max-width: 480px) {
             .registration-card {
-                padding: 0.4rem 0.2rem !important;
-                margin: 0.1rem !important;
-                border-radius: 7px !important;
-                max-width: 99vw !important;
+                padding: 0.15rem 0.05rem !important;
+                margin: 0 !important;
+                border-radius: 6px !important;
+                max-width: 90vw !important;
             }
             .registration-header h1 {
                 font-size: 1.08rem !important;
