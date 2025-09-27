@@ -1,3 +1,39 @@
+/* --- NAV MENU ALIGNMENT & SITE STYLE FIX --- */
+@media (max-width: 900px) {
+    .nav-menu {
+        padding-top: 4.5rem !important;
+        justify-content: center !important;
+        background: linear-gradient(135deg, #f0f8ff 0%, #e0f7fa 100%) !important;
+        box-shadow: 0 12px 48px rgba(135,206,235,0.18);
+        border-radius: 22px !important;
+        border: 1.5px solid #b0e0e6;
+    }
+    .nav-link {
+        color: #3182ce !important;
+        font-weight: 700 !important;
+        background: none !important;
+        border: none !important;
+        margin: 0.3rem 0;
+        letter-spacing: 0.2px;
+    }
+    .nav-link:hover, .nav-link:focus {
+        background: #e6f7fa !important;
+        color: #2b6cb0 !important;
+    }
+    .btn-register {
+        background: linear-gradient(135deg, #3182ce 0%, #2b6cb0 100%) !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+        margin-top: 1.5rem !important;
+        border-radius: 18px !important;
+        box-shadow: 0 2px 8px rgba(49,130,206,0.09);
+    }
+    .hamburger {
+        top: 18px !important;
+        right: 18px !important;
+        z-index: 11000 !important;
+    }
+}
 /* --- MODERN GLASS MOBILE NAV DESIGN --- */
 @media (max-width: 900px) {
     .nav-menu {
