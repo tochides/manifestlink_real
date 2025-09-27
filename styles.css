@@ -1,11 +1,15 @@
-/* --- Final mobile hero section fix for perfect stacking and centering --- */
+/* --- Clean, consolidated mobile hero section and QR card fix --- */
 @media (max-width: 600px) {
     .hero-container {
-        display: block !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
         width: 100vw !important;
         max-width: 100vw !important;
         padding: 0 0.5rem !important;
         margin: 0 !important;
+        box-sizing: border-box !important;
     }
     .hero-content, .hero-visual {
         width: 100% !important;
@@ -31,6 +35,7 @@
         border-radius: 18px !important;
         box-sizing: border-box !important;
         text-align: center !important;
+        margin: 0 auto !important;
     }
     .qr-code {
         width: 100px !important;
@@ -57,58 +62,6 @@
     }
     .qr-info p {
         font-size: 0.9rem !important;
-        margin-bottom: 1rem !important;
-    }
-    .qr-action .btn, .qr-action .btn-primary {
-        width: 100% !important;
-        font-size: 1rem !important;
-        padding: 0.8rem 0 !important;
-        border-radius: 12px !important;
-        margin: 0 auto !important;
-        display: block !important;
-    }
-}
-@media (max-width: 480px) {
-    .hero-container {
-        flex-direction: column-reverse !important;
-    }
-}
-/* --- Mobile fix for .qr-demo card and contents (Agent Patch) --- */
-@media (max-width: 480px) {
-    .qr-demo {
-        max-width: 95vw !important;
-        padding: 1.2rem 0.5rem !important;
-        border-radius: 18px !important;
-        box-sizing: border-box !important;
-        text-align: center !important;
-        min-width: unset !important;
-        min-height: unset !important;
-    }
-    .qr-code {
-        width: 120px !important;
-        height: 120px !important;
-        max-width: 60vw !important;
-        max-height: 60vw !important;
-        min-width: 80px !important;
-        min-height: 80px !important;
-        margin: 0 auto 1rem auto !important;
-    }
-    .qr-icon {
-        width: 80px !important;
-        height: 80px !important;
-        max-width: 20vw !important;
-        max-height: 20vw !important;
-        min-width: 48px !important;
-        min-height: 48px !important;
-        margin: 0 auto !important;
-        font-size: 2.2rem !important;
-    }
-    .qr-info h3 {
-        font-size: 1.1rem !important;
-        margin-bottom: 0.5rem !important;
-    }
-    .qr-info p {
-        font-size: 0.95rem !important;
         margin-bottom: 1rem !important;
     }
     .qr-action .btn, .qr-action .btn-primary {
