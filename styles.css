@@ -1,3 +1,73 @@
+/* --- Final mobile hero section fix for perfect stacking and centering --- */
+@media (max-width: 600px) {
+    .hero-container {
+        display: block !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        padding: 0 0.5rem !important;
+        margin: 0 !important;
+    }
+    .hero-content, .hero-visual {
+        width: 100% !important;
+        max-width: 100vw !important;
+        margin: 0 auto 1.5rem auto !important;
+        text-align: center !important;
+        display: block !important;
+        float: none !important;
+        box-sizing: border-box !important;
+    }
+    .hero-content {
+        margin-bottom: 2rem !important;
+    }
+    .hero-visual {
+        margin-bottom: 0 !important;
+    }
+    .qr-demo {
+        max-width: 98vw !important;
+        width: 100% !important;
+        min-width: unset !important;
+        min-height: unset !important;
+        padding: 1.2rem 0.5rem !important;
+        border-radius: 18px !important;
+        box-sizing: border-box !important;
+        text-align: center !important;
+    }
+    .qr-code {
+        width: 100px !important;
+        height: 100px !important;
+        max-width: 60vw !important;
+        max-height: 60vw !important;
+        min-width: 60px !important;
+        min-height: 60px !important;
+        margin: 0 auto 1rem auto !important;
+    }
+    .qr-icon {
+        width: 60px !important;
+        height: 60px !important;
+        max-width: 20vw !important;
+        max-height: 20vw !important;
+        min-width: 36px !important;
+        min-height: 36px !important;
+        margin: 0 auto !important;
+        font-size: 1.8rem !important;
+    }
+    .qr-info h3 {
+        font-size: 1rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    .qr-info p {
+        font-size: 0.9rem !important;
+        margin-bottom: 1rem !important;
+    }
+    .qr-action .btn, .qr-action .btn-primary {
+        width: 100% !important;
+        font-size: 1rem !important;
+        padding: 0.8rem 0 !important;
+        border-radius: 12px !important;
+        margin: 0 auto !important;
+        display: block !important;
+    }
+}
 @media (max-width: 480px) {
     .hero-container {
         flex-direction: column-reverse !important;
