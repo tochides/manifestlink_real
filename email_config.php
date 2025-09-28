@@ -1,4 +1,10 @@
 <?php
+// Ensure Composer autoload is loaded for SendGrid and other dependencies
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
+} elseif (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+}
 /**
  * Email Configuration for ManifestLink OTP System
  * 
@@ -16,11 +22,9 @@ define('EMAIL_FROM', 'srgedaya@usa.edu.ph'); // Your actual email
 define('EMAIL_FROM_NAME', 'ManifestLink');
 define('EMAIL_SUBJECT_PREFIX', 'ManifestLink - ');
 
-// Gmail SMTP Configuration
-define('SMTP_HOST', 'smtp.gmail.com');
-define('SMTP_PORT', 587);
-define('SMTP_USERNAME', 'srgedaya@usa.edu.ph'); // Your actual email
-define('SMTP_PASSWORD', 'nfmp xowi zbav qcoo'); // Your Gmail app password
+
+// SendGrid API Key
+define('SENDGRID_API_KEY', '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');
 
 /**
  * Send OTP Email using Gmail SMTP
@@ -30,83 +34,38 @@ define('SMTP_PASSWORD', 'nfmp xowi zbav qcoo'); // Your Gmail app password
  * @param string $otp The 6-digit OTP code
  * @return bool True if email sent successfully, false otherwise
  */
-function sendOTPEmail($to_email, $user_name, $otp) {
-    // Check if PHPMailer is available
-    if (class_exists('PHPMailer\PHPMailer\PHPMailer')) {
-        return sendOTPEmailSMTP($to_email, $user_name, $otp);
-    }
-    
-    // Fallback: Configure PHP settings programmatically and use mail()
-    ini_set('SMTP', 'smtp.gmail.com');
-    ini_set('smtp_port', '587');
-    ini_set('sendmail_from', EMAIL_FROM);
-    
-    return sendOTPEmailGmail($to_email, $user_name, $otp);
-}
 
-/**
- * Send OTP Email using Gmail SMTP with PHPMailer
- */
-function sendOTPEmailSMTP($to_email, $user_name, $otp) {
+// Send OTP Email using SendGrid API
+function sendOTPEmail($to_email, $user_name, $otp) {
+    if (!class_exists('SendGrid\\Mail\\Mail')) {
+        error_log('SendGrid library not found. Please run composer install.');
+        return false;
+    }
+    $email = new \SendGrid\Mail\Mail();
+    $email->setFrom(EMAIL_FROM, EMAIL_FROM_NAME);
+    $email->setSubject(EMAIL_SUBJECT_PREFIX . "QR Code Access Verification");
+    $email->addTo($to_email, $user_name);
+    $email->addContent("text/html", getEmailTemplate($user_name, $otp));
     try {
-        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-        
-        // Server settings
-        $mail->isSMTP();
-        $mail->Host       = SMTP_HOST;
-        $mail->SMTPAuth   = true;
-        $mail->Username   = SMTP_USERNAME;
-        $mail->Password   = SMTP_PASSWORD;
-        $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = SMTP_PORT;
-        
-        // Fix SSL certificate issues for local development
-        $mail->SMTPOptions = array(
-            'ssl' => array(
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-                'allow_self_signed' => true
-            )
-        );
-        
-        // Recipients
-        $mail->setFrom(EMAIL_FROM, EMAIL_FROM_NAME);
-        $mail->addAddress($to_email, $user_name);
-        
-        // Content
-        $mail->isHTML(true);
-        $mail->Subject = EMAIL_SUBJECT_PREFIX . "QR Code Access Verification";
-        $mail->Body    = getEmailTemplate($user_name, $otp);
-        
-        $mail->send();
-        return true;
+        $sendgrid = new \SendGrid(SENDGRID_API_KEY);
+        $response = $sendgrid->send($email);
+        if ($response->statusCode() >= 200 && $response->statusCode() < 300) {
+            return true;
+        } else {
+            error_log('SendGrid error: ' . $response->statusCode() . ' ' . $response->body());
+            return false;
+        }
     } catch (Exception $e) {
-        error_log("Email sending failed: " . $mail->ErrorInfo);
+        error_log('SendGrid Exception: ' . $e->getMessage());
         return false;
     }
 }
 
 /**
- * Send OTP Email using Gmail SMTP with basic PHP functions
+ * Send OTP Email using Gmail SMTP with PHPMailer
  */
-function sendOTPEmailGmail($to_email, $user_name, $otp) {
-    // Configure PHP to use Gmail SMTP
-    ini_set('SMTP', SMTP_HOST);
-    ini_set('smtp_port', SMTP_PORT);
-    ini_set('sendmail_from', EMAIL_FROM);
-    
-    $subject = EMAIL_SUBJECT_PREFIX . "QR Code Access Verification";
-    $message_body = getEmailTemplate($user_name, $otp);
-    
-    $headers = array();
-    $headers[] = "MIME-Version: 1.0";
-    $headers[] = "Content-type: text/html; charset=UTF-8";
-    $headers[] = "From: " . EMAIL_FROM_NAME . " <" . EMAIL_FROM . ">";
-    $headers[] = "Reply-To: " . EMAIL_FROM;
-    $headers[] = "X-Mailer: PHP/" . phpversion();
-    
-    return mail($to_email, $subject, $message_body, implode("\r\n", $headers));
-}
+
+// Old SMTP and mail() functions removed; now using SendGrid API only.
 
 /**
  * Get HTML Email Template
