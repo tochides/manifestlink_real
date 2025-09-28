@@ -7,8 +7,8 @@ if (file_exists(__DIR__ . '/.env')) {
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
     $dotenv->load();
 }
-// Prefer environment variables (Railway/production). Support DB_* and MYSQL* names,
-// checking getenv(), $_ENV and $_SERVER. Fallback to local XAMPP defaults only if missing.
+
+// Helper function to read environment variables
 function read_env(string $key, $default = null) {
     $val = getenv($key);
     if ($val !== false && $val !== '') return $val;
@@ -17,16 +17,15 @@ function read_env(string $key, $default = null) {
     return $default;
 }
 
-$servername = read_env('DB_HOST', read_env('MYSQLHOST', 'localhost'));
-$username  = read_env('DB_USER', read_env('MYSQLUSER', 'root'));
-$password  = read_env('DB_PASSWORD', read_env('MYSQLPASSWORD', ''));
-$dbname    = read_env('DB_NAME', read_env('MYSQLDATABASE', 'manifestlink'));
+// Railway DB configuration from .env
+$servername = read_env('DB_HOST', 'localhost');
+$username   = read_env('DB_USERNAME', 'root');      // Matches your .env
+$password   = read_env('DB_PASSWORD', '');
+$dbname     = read_env('DB_DATABASE', 'manifestlink');
+$db_port    = (int)(read_env('DB_PORT', 3306));
+if ($db_port <= 0) $db_port = 3306;
 
-// Port: prefer DB_PORT, then MYSQLPORT, default 3306 (not 3307)
-$db_port   = (int) read_env('DB_PORT', read_env('MYSQLPORT', 3306));
-if ($db_port <= 0) { $db_port = 3306; }
-
-// Also allow MYSQL_PUBLIC_URL/MYSQL_URL if present
+// Optional: also support MYSQL_URL or MYSQL_PUBLIC_URL
 $url = read_env('MYSQL_PUBLIC_URL', read_env('MYSQL_URL'));
 if ($url && ($parts = parse_url($url))) {
     $servername = $parts['host'] ?? $servername;
@@ -38,22 +37,7 @@ if ($url && ($parts = parse_url($url))) {
     }
 }
 
-// Final safety: ensure we never pass 0 as port
-if ($db_port <= 0) { $db_port = 3306; }
-
-// Create connection
-// Optional diagnostic: visit any PHP page that includes this file with ?diag=1
-if (isset($_GET['diag'])) {
-    header('Content-Type: text/plain');
-    echo "Detected DB settings\n";
-    echo "HOST=" . $servername . "\n";
-    echo "PORT=" . $db_port . "\n";
-    echo "DBNAME=" . $dbname . "\n";
-    echo "USER=" . $username . "\n";
-    echo "APP_ENV=" . (read_env('APP_ENV', 'dev')) . "\n";
-    exit;
-}
-
+// Create MySQL connection
 $conn = new mysqli($servername, $username, $password, $dbname, $db_port);
 
 // Set charset for proper unicode handling
@@ -63,10 +47,25 @@ if (!$conn->connect_error) {
 
 // Check connection
 if ($conn->connect_error) {
-    // In production, avoid exposing details
-    if (strtolower((string)getenv('APP_ENV')) === 'production') {
+    // In production, hide details
+    if (strtolower((string)read_env('APP_ENV', 'dev')) === 'production') {
         http_response_code(500);
         die('Database connection error.');
     }
     die('Connection failed: ' . $conn->connect_error);
 }
+
+// Optional diagnostic: visit any PHP page that includes this file with ?diag=1
+if (isset($_GET['diag'])) {
+    header('Content-Type: text/plain');
+    echo "Detected DB settings\n";
+    echo "HOST=" . $servername . "\n";
+    echo "PORT=" . $db_port . "\n";
+    echo "DBNAME=" . $dbname . "\n";
+    echo "USER=" . $username . "\n";
+    echo "APP_ENV=" . read_env('APP_ENV', 'dev') . "\n";
+    exit;
+}
+
+// Optional test snippet (can remove later)
+// echo "Connected successfully to {$servername}:{$db_port}/{$dbname}";
