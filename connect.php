@@ -1,4 +1,12 @@
 <?php
+
+require __DIR__ . '/vendor/autoload.php'; // Composer autoload
+
+// Load .env if it exists
+if (file_exists(__DIR__ . '/.env')) {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    $dotenv->load();
+}
 // Prefer environment variables (Railway/production). Support DB_* and MYSQL* names,
 // checking getenv(), $_ENV and $_SERVER. Fallback to local XAMPP defaults only if missing.
 function read_env(string $key, $default = null) {
