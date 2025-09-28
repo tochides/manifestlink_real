@@ -1,13 +1,13 @@
 <?php
 session_start();
-require __DIR__ . '/vendor/autoload.php'; // Composer autoload
+require __DIR__ . '/vendor/autoload.php';
 include 'connect.php';
-include 'email_config.php'; // SendGrid + getEmailTemplate + sendOTPEmail()
+include 'email_config.php'; // Fixed SendGrid config
 
 $message = '';
 $email = '';
 
-// Handle OTP request
+// --- Handle OTP request ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_otp'])) {
     $email = trim($_POST['email'] ?? '');
 
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_otp'])) {
     }
 }
 
-// Handle OTP verification
+// --- Handle OTP verification ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
     $email = $_SESSION['otp_email'] ?? '';
     $otp = trim($_POST['otp'] ?? '');
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
                 $verification = $result->fetch_assoc();
 
                 if (strtotime($verification['expires_at']) > time()) {
-                    // Check QR code
+                    // Check if QR exists
                     $qrStmt = $conn->prepare("SELECT qr_image_path FROM qr_codes WHERE user_id = ?");
                     $qrStmt->bind_param("i", $user_id);
                     $qrStmt->execute();
@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
     }
 }
 
-// Pre-fill from GET
+// --- Pre-fill email from GET ---
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['email'])) {
     $email = trim($_GET['email']);
     if (!empty($email)) {
@@ -128,12 +128,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['email'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OTP Verification - ManifestLink</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/styles.css">
-    <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OTP Verification - ManifestLink</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="css/styles.css">
+<style>
 
         .otp-container {
             max-width: 500px;
@@ -299,40 +301,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['email'])) {
     <?php if (!empty($message)) echo $message; ?>
 
     <?php if (!isset($_SESSION['otp_email'])): ?>
-        <form method="POST" class="otp-form">
-            <div class="form-group">
-                <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
-                <input type="email" id="email" name="email"
-                       value="<?php echo htmlspecialchars($_SESSION['prefill_email'] ?? '', ENT_QUOTES); ?>"
-                       required placeholder="Enter your registered email">
-            </div>
-            <button type="submit" name="request_otp" class="btn btn-primary">
-                <i class="fas fa-paper-plane"></i> Send Verification Code
-            </button>
-        </form>
-    <?php else: ?>
-        <form method="POST" class="otp-form">
-            <div class="form-group">
-                <label for="otp"><i class="fas fa-key"></i> Verification Code</label>
-                <input type="text" id="otp" name="otp" class="otp-input" maxlength="6" required
-                       placeholder="000000" pattern="[0-9]{6}">
-                <small style="color: #6b7280; display:block; margin-top:0.5rem;">
-                    Enter the 6-digit code sent to <?php echo htmlspecialchars($_SESSION['otp_email'], ENT_QUOTES); ?>
-                </small>
-            </div>
-            <button type="submit" name="verify_otp" class="btn btn-primary">
-                <i class="fas fa-check"></i> Verify & Access QR Code
-            </button>
-        </form>
-        <div class="resend-section">
-            <p>Didn't receive the code?</p>
-            <form method="POST" style="display:inline;">
-                <input type="hidden" name="email" value="<?php echo htmlspecialchars($_SESSION['otp_email'], ENT_QUOTES); ?>">
-                <button type="submit" name="request_otp" class="btn btn-secondary">
-                    <i class="fas fa-redo"></i> Resend Code
-                </button>
-            </form>
+    <!-- Request OTP Form -->
+    <form method="POST" class="otp-form">
+        <div class="form-group">
+            <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
+            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($_SESSION['prefill_email'] ?? $email); ?>" required placeholder="Enter your registered email">
         </div>
+        <button type="submit" name="request_otp" class="btn btn-primary">
+            <i class="fas fa-paper-plane"></i> Send Verification Code
+        </button>
+    </form>
+    <?php else: ?>
+    <!-- Verify OTP Form -->
+    <form method="POST" class="otp-form">
+        <div class="form-group">
+            <label for="otp"><i class="fas fa-key"></i> Verification Code</label>
+            <input type="text" id="otp" name="otp" class="otp-input" maxlength="6" required placeholder="000000" pattern="[0-9]{6}">
+            <small style="color: #6b7280; margin-top: 0.5rem; display: block;">
+                Enter the 6-digit code sent to <?php echo htmlspecialchars($_SESSION['otp_email']); ?>
+            </small>
+        </div>
+        <button type="submit" name="verify_otp" class="btn btn-primary">
+            <i class="fas fa-check"></i> Verify & Access QR Code
+        </button>
+    </form>
+    <div class="resend-section">
+        <p>Didn't receive the code?</p>
+        <form method="POST" style="display: inline;">
+            <input type="hidden" name="email" value="<?php echo htmlspecialchars($_SESSION['otp_email']); ?>">
+            <button type="submit" name="request_otp" class="btn btn-secondary">
+                <i class="fas fa-redo"></i> Resend Code
+            </button>
+        </form>
+    </div>
     <?php endif; ?>
 
     <div class="back-link">
@@ -341,11 +342,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['email'])) {
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
     const otpInput = document.getElementById('otp');
     if (otpInput) {
         otpInput.focus();
-        otpInput.addEventListener('input', function () {
+        otpInput.addEventListener('input', function(e) {
             this.value = this.value.replace(/[^0-9]/g, '').substring(0, 6);
         });
     }
@@ -353,3 +354,4 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 </body>
 </html>
+
