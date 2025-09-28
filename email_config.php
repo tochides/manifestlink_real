@@ -50,7 +50,10 @@ function sendOTPEmail($to_email, $user_name, $otp) {
 function sendOTPEmailSMTP($to_email, $user_name, $otp) {
     try {
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-        
+        // Enable SMTP debug output to error_log
+        $mail->SMTPDebug = 2;
+        $mail->Debugoutput = function($str, $level) { error_log("PHPMailer: $str"); };
+
         // Server settings
         $mail->isSMTP();
         $mail->Host       = SMTP_HOST;
@@ -59,7 +62,7 @@ function sendOTPEmailSMTP($to_email, $user_name, $otp) {
         $mail->Password   = SMTP_PASSWORD;
         $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = SMTP_PORT;
-        
+
         // Fix SSL certificate issues for local development
         $mail->SMTPOptions = array(
             'ssl' => array(
@@ -68,16 +71,16 @@ function sendOTPEmailSMTP($to_email, $user_name, $otp) {
                 'allow_self_signed' => true
             )
         );
-        
+
         // Recipients
         $mail->setFrom(EMAIL_FROM, EMAIL_FROM_NAME);
         $mail->addAddress($to_email, $user_name);
-        
+
         // Content
         $mail->isHTML(true);
         $mail->Subject = EMAIL_SUBJECT_PREFIX . "QR Code Access Verification";
         $mail->Body    = getEmailTemplate($user_name, $otp);
-        
+
         $mail->send();
         return true;
     } catch (Exception $e) {
