@@ -16,11 +16,11 @@ define('EMAIL_FROM', 'srgedaya@usa.edu.ph'); // Your actual email
 define('EMAIL_FROM_NAME', 'ManifestLink');
 define('EMAIL_SUBJECT_PREFIX', 'ManifestLink - ');
 
-// Gmail SMTP Configuration
-define('SMTP_HOST', 'smtp.gmail.com');
+// SendGrid SMTP Configuration
+define('SMTP_HOST', 'smtp.sendgrid.net');
 define('SMTP_PORT', 587);
-define('SMTP_USERNAME', 'srgedaya@usa.edu.ph'); // Your actual email
-define('SMTP_PASSWORD', 'nfmp xowi zbav qcoo'); // Your Gmail app password
+define('SMTP_USERNAME', 'apikey'); // SendGrid requires the literal string 'apikey' as the username
+define('SMTP_PASSWORD', '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'); // Your SendGrid API key
 
 /**
  * Send OTP Email using Gmail SMTP
