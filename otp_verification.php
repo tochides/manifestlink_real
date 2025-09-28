@@ -1,7 +1,7 @@
 <?php
 session_start();
 include 'connect.php';
-include 'email_config.php';
+include 'email_config.php'; // SendGrid config
 
 $message = '';
 $email = '';
@@ -26,12 +26,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_otp'])) {
             $otp = sprintf("%06d", mt_rand(100000, 999999));
             $expires = date('Y-m-d H:i:s', strtotime('+10 minutes'));
             
-            // Store OTP in database
-            $otpStmt = $conn->prepare("INSERT INTO otp_verification (user_id, email, otp, expires_at) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE otp = ?, expires_at = ?");
+            // Store OTP
+            $otpStmt = $conn->prepare("
+                INSERT INTO otp_verification (user_id, email, otp, expires_at) 
+                VALUES (?, ?, ?, ?) 
+                ON DUPLICATE KEY UPDATE otp = ?, expires_at = ?
+            ");
             $otpStmt->bind_param("isssss", $user['id'], $email, $otp, $expires, $otp, $expires);
             
             if ($otpStmt->execute()) {
-                // Send OTP email using the email configuration
+                // Send OTP with SendGrid
                 if (sendOTPEmail($email, $user['full_name'], $otp)) {
                     $_SESSION['otp_email'] = $email;
                     $message = '<div class="alert success"><i class="fas fa-check-circle"></i> Verification code sent to your email!</div>';
@@ -57,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
     if (empty($email) || empty($otp)) {
         $message = '<div class="alert error"><i class="fas fa-exclamation-circle"></i> Please enter the verification code.</div>';
     } else {
-        // First, get the user ID for this email
+        // Get user
         $userStmt = $conn->prepare("SELECT id, full_name FROM users WHERE email = ?");
         $userStmt->bind_param("s", $email);
         $userStmt->execute();
@@ -67,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
             $user = $userResult->fetch_assoc();
             $user_id = $user['id'];
             
-            // Verify OTP using the same logic as test_otp.php
+            // Check OTP
             $stmt = $conn->prepare("SELECT * FROM otp_verification WHERE user_id = ? AND otp = ?");
             $stmt->bind_param("is", $user_id, $otp);
             $stmt->execute();
@@ -76,16 +80,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
             if ($result->num_rows > 0) {
                 $verification = $result->fetch_assoc();
                 
-                // Check if expired using PHP time comparison
                 if (strtotime($verification['expires_at']) > time()) {
-                    // Check if user has QR code
+                    // Has QR?
                     $qrStmt = $conn->prepare("SELECT qr_image_path FROM qr_codes WHERE user_id = ?");
                     $qrStmt->bind_param("i", $user_id);
                     $qrStmt->execute();
                     $qrResult = $qrStmt->get_result();
                     
                     if ($qrResult->num_rows > 0) {
-                        // Clear OTP and redirect to QR code
+                        // Clear OTP + redirect
                         $clearStmt = $conn->prepare("DELETE FROM otp_verification WHERE user_id = ? AND otp = ?");
                         $clearStmt->bind_param("is", $user_id, $otp);
                         $clearStmt->execute();
@@ -99,28 +102,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
                     }
                     $qrStmt->close();
                 } else {
-                    $message = '<div class="alert error"><i class="fas fa-exclamation-circle"></i> Verification code has expired. Please request a new one.</div>';
+                    $message = '<div class="alert error"><i class="fas fa-exclamation-circle"></i> Verification code expired. Request a new one.</div>';
                 }
             } else {
-                $message = '<div class="alert error"><i class="fas fa-exclamation-circle"></i> Invalid verification code. Please check and try again.</div>';
+                $message = '<div class="alert error"><i class="fas fa-exclamation-circle"></i> Invalid verification code.</div>';
             }
             $stmt->close();
         } else {
-            $message = '<div class="alert error"><i class="fas fa-exclamation-circle"></i> User not found. Please request a new verification code.</div>';
+            $message = '<div class="alert error"><i class="fas fa-exclamation-circle"></i> User not found. Please request a new code.</div>';
         }
         $userStmt->close();
     }
 }
 
-// Handle direct email access (from register.php lookup)
+// Pre-fill from GET
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['email'])) {
     $email = trim($_GET['email']);
     if (!empty($email)) {
-        // Pre-fill the email field
         $_SESSION['prefill_email'] = $email;
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
