@@ -2,6 +2,7 @@
 require __DIR__ . '/vendor/autoload.php';
 
 use Dotenv\Dotenv;
+use SendGrid\Mail\Mail;
 
 // Load .env only if it exists (for local dev)
 if (file_exists(__DIR__ . '/.env')) {
@@ -9,22 +10,15 @@ if (file_exists(__DIR__ . '/.env')) {
     $dotenv->load();
 }
 
-// Get environment variables (Railway will inject these automatically in production)
+// Get environment variables (Railway injects automatically)
 $SENDGRID_API_KEY   = getenv('SENDGRID_API_KEY');
 $EMAIL_FROM         = getenv('EMAIL_FROM');
 $EMAIL_FROM_NAME    = getenv('EMAIL_FROM_NAME');
 
-// Optional: fallback values for development (avoid nulls)
-if (!$SENDGRID_API_KEY) {
-    $SENDGRID_API_KEY = "your_local_test_key_here";
-}
-if (!$EMAIL_FROM) {
-    $EMAIL_FROM = "srgedaya@usa.edu.ph";
-}
-if (!$EMAIL_FROM_NAME) {
-    $EMAIL_FROM_NAME = "ManifestLink";
-}
-
+// Optional fallback for local dev
+if (!$SENDGRID_API_KEY) { $SENDGRID_API_KEY = "your_local_test_key_here"; }
+if (!$EMAIL_FROM) { $EMAIL_FROM = "srgedaya@usa.edu.ph"; }
+if (!$EMAIL_FROM_NAME) { $EMAIL_FROM_NAME = "ManifestLink"; }
 
 /**
  * Get HTML Email Template
@@ -67,7 +61,6 @@ function getEmailTemplate($user_name, $otp) {
                 </div>
                 
                 <p>Enter this code on the verification page to access your QR code.</p>
-                
                 <p>Thank you for using ManifestLink!</p>
             </div>
             <div class='footer'>
@@ -77,4 +70,26 @@ function getEmailTemplate($user_name, $otp) {
         </div>
     </body>
     </html>";
+}
+
+/**
+ * Send OTP Email using SendGrid
+ */
+function sendOTPEmail($to_email, $to_name, $otp) {
+    global $SENDGRID_API_KEY, $EMAIL_FROM, $EMAIL_FROM_NAME;
+
+    $email = new Mail();
+    $email->setFrom($EMAIL_FROM, $EMAIL_FROM_NAME);
+    $email->setSubject("Your ManifestLink Verification Code");
+    $email->addTo($to_email, $to_name);
+    $email->addContent("text/html", getEmailTemplate($to_name, $otp));
+
+    $sendgrid = new \SendGrid($SENDGRID_API_KEY);
+    try {
+        $response = $sendgrid->send($email);
+        return $response->statusCode() >= 200 && $response->statusCode() < 300;
+    } catch (Exception $e) {
+        error_log("SendGrid Error: " . $e->getMessage());
+        return false;
+    }
 }
