@@ -1,71 +1,30 @@
 <?php
-// Ensure Composer autoload is loaded for SendGrid and other dependencies
-if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
-    require_once __DIR__ . '/../vendor/autoload.php';
-} elseif (file_exists(__DIR__ . '/vendor/autoload.php')) {
-    require_once __DIR__ . '/vendor/autoload.php';
-}
-/**
- * Email Configuration for ManifestLink OTP System
- * 
- * This file contains email settings and helper functions for sending OTP verification emails.
- * Configured to use Gmail SMTP for reliable email delivery.
- */
+require __DIR__ . '/vendor/autoload.php';
 
-// Load PHPMailer if available
-if (file_exists('vendor/autoload.php')) {
-    require_once 'vendor/autoload.php';
+use Dotenv\Dotenv;
+
+// Load .env only if it exists (for local dev)
+if (file_exists(__DIR__ . '/.env')) {
+    $dotenv = Dotenv::createImmutable(__DIR__);
+    $dotenv->load();
 }
 
-// Email Configuration
-define('EMAIL_FROM', 'srgedaya@usa.edu.ph'); // Your actual email
-define('EMAIL_FROM_NAME', 'ManifestLink');
-define('EMAIL_SUBJECT_PREFIX', 'ManifestLink - ');
+// Get environment variables (Railway will inject these automatically in production)
+$SENDGRID_API_KEY   = getenv('SENDGRID_API_KEY');
+$EMAIL_FROM         = getenv('EMAIL_FROM');
+$EMAIL_FROM_NAME    = getenv('EMAIL_FROM_NAME');
 
-
-// SendGrid API Key
-define('SENDGRID_API_KEY', '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');
-
-/**
- * Send OTP Email using Gmail SMTP
- * 
- * @param string $to_email Recipient email address
- * @param string $user_name Recipient's full name
- * @param string $otp The 6-digit OTP code
- * @return bool True if email sent successfully, false otherwise
- */
-
-// Send OTP Email using SendGrid API
-function sendOTPEmail($to_email, $user_name, $otp) {
-    if (!class_exists('SendGrid\\Mail\\Mail')) {
-        error_log('SendGrid library not found. Please run composer install.');
-        return false;
-    }
-    $email = new \SendGrid\Mail\Mail();
-    $email->setFrom(EMAIL_FROM, EMAIL_FROM_NAME);
-    $email->setSubject(EMAIL_SUBJECT_PREFIX . "QR Code Access Verification");
-    $email->addTo($to_email, $user_name);
-    $email->addContent("text/html", getEmailTemplate($user_name, $otp));
-    try {
-        $sendgrid = new \SendGrid(SENDGRID_API_KEY);
-        $response = $sendgrid->send($email);
-        if ($response->statusCode() >= 200 && $response->statusCode() < 300) {
-            return true;
-        } else {
-            error_log('SendGrid error: ' . $response->statusCode() . ' ' . $response->body());
-            return false;
-        }
-    } catch (Exception $e) {
-        error_log('SendGrid Exception: ' . $e->getMessage());
-        return false;
-    }
+// Optional: fallback values for development (avoid nulls)
+if (!$SENDGRID_API_KEY) {
+    $SENDGRID_API_KEY = "your_local_test_key_here";
+}
+if (!$EMAIL_FROM) {
+    $EMAIL_FROM = "srgedaya@usa.edu.ph";
+}
+if (!$EMAIL_FROM_NAME) {
+    $EMAIL_FROM_NAME = "ManifestLink";
 }
 
-/**
- * Send OTP Email using Gmail SMTP with PHPMailer
- */
-
-// Old SMTP and mail() functions removed; now using SendGrid API only.
 
 /**
  * Get HTML Email Template
@@ -119,50 +78,3 @@ function getEmailTemplate($user_name, $otp) {
     </body>
     </html>";
 }
-
-/**
- * Clean up expired OTPs from database
- * Run this periodically (e.g., via cron job)
- */
-function cleanupExpiredOTPs($conn) {
-    $stmt = $conn->prepare("DELETE FROM otp_verification WHERE expires_at < NOW()");
-    return $stmt->execute();
-}
-
-/**
- * Get OTP statistics (for admin purposes)
- */
-function getOTPStats($conn) {
-    $stats = array();
-    
-    // Total OTPs generated today
-    $stmt = $conn->prepare("SELECT COUNT(*) as total FROM otp_verification WHERE DATE(created_at) = CURDATE()");
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $stats['today_total'] = $result->fetch_assoc()['total'];
-    
-    // Expired OTPs
-    $stmt = $conn->prepare("SELECT COUNT(*) as expired FROM otp_verification WHERE expires_at < NOW()");
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $stats['expired'] = $result->fetch_assoc()['expired'];
-    
-    return $stats;
-}
-
-/**
- * Setup Instructions for Gmail SMTP:
- * 
- * 1. Enable 2-Factor Authentication on your Gmail account
- * 2. Generate an App Password:
- *    - Go to Google Account settings
- *    - Security → 2-Step Verification → App passwords
- *    - Generate a new app password for "Mail"
- * 3. Replace 'your-app-password-here' above with your actual app password
- * 4. Install PHPMailer (optional but recommended):
- *    - Run: composer require phpmailer/phpmailer
- *    - Or download manually from: https://github.com/PHPMailer/PHPMailer
- * 
- * Alternative: Use the basic mail() function (less reliable but works for testing)
- */
-?> 
