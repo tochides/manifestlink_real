@@ -21,7 +21,7 @@ function read_env(string $key, $default = null) {
 $servername = read_env('DB_HOST', 'localhost');
 $username   = read_env('DB_USERNAME', 'root');      // Matches your .env
 $password   = read_env('DB_PASSWORD', '');
-$dbname     = read_env('DB_DATABASE', 'manifestlink');
+$dbname = read_env('DB_DATABASE', read_env('MYSQLDATABASE', 'railway'));
 $db_port    = (int)(read_env('DB_PORT', 3306));
 if ($db_port <= 0) $db_port = 3306;
 
