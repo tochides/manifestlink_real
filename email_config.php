@@ -6,15 +6,33 @@ define('EMAIL_SUBJECT_PREFIX', 'ManifestLink - ');
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-
-// ...existing code...
 use Resend\Resend;
 
-// ...existing code...
+function sendOTPEmail($to_email, $user_name, $otp) {
+    try {
+        $resend = new Resend(RESEND_API_KEY);
+        $params = [
+            'from' => EMAIL_FROM,
+            'to' => [$to_email],
+            'subject' => EMAIL_SUBJECT_PREFIX . "QR Code Access Verification",
+            'html' => getEmailTemplate($user_name, $otp)
+        ];
 
-/**
- * Get HTML Email Template
- */
+        $response = $resend->emails->send($params);
+
+        if (isset($response->id)) {
+            return true;
+        } else {
+            error_log('Resend error: ' . json_encode($response));
+            return false;
+        }
+    } catch (Exception $e) {
+        error_log('Resend Exception: ' . $e->getMessage());
+        return false;
+    }
+}
+ 
+
 function getEmailTemplate($user_name, $otp) {
     return "
     <html>
@@ -64,30 +82,5 @@ function getEmailTemplate($user_name, $otp) {
     </html>";
 }
 
-/**
- * Send OTP Email using Resend API
- */
 
 
-
-function sendOTPEmail($to_email, $user_name, $otp) {
-    try {
-        $resend = new Resend(RESEND_API_KEY);
-        $params = [
-            'from' => EMAIL_FROM,
-            'to' => [$to_email],
-            'subject' => EMAIL_SUBJECT_PREFIX . "QR Code Access Verification",
-            'html' => getEmailTemplate($user_name, $otp)
-        ];
-        $response = $resend->emails->send($params);
-        if (isset($response['id'])) {
-            return true;
-        } else {
-            error_log('Resend error: ' . json_encode($response));
-            return false;
-        }
-    } catch (Exception $e) {
-        error_log('Resend Exception: ' . $e->getMessage());
-        return false;
-    }
-}
