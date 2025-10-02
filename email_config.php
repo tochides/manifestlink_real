@@ -7,29 +7,10 @@ define('EMAIL_SUBJECT_PREFIX', 'ManifestLink - ');
 require_once __DIR__ . '/vendor/autoload.php';
 
 
-use Dotenv\Dotenv;
-use SendGrid\Mail\Mail;
+// ...existing code...
 use Resend\Resend;
 
-// --- Load .env safely ---
-if (file_exists(__DIR__ . '/.env')) {
-    $dotenv = Dotenv::createImmutable(__DIR__);
-    $dotenv->safeLoad(); // safeLoad avoids errors if a variable is missing
-}
-
-// --- Fetch environment variables ---
-$SENDGRID_API_KEY = getenv('SENDGRID_API_KEY') ?: ($_ENV['SENDGRID_API_KEY'] ?? null);
-$EMAIL_FROM       = getenv('EMAIL_FROM') ?: ($_ENV['EMAIL_FROM'] ?? null);
-$EMAIL_FROM_NAME  = getenv('EMAIL_FROM_NAME') ?: ($_ENV['EMAIL_FROM_NAME'] ?? null);
-
-// --- Validate API key ---
-if (!$SENDGRID_API_KEY) {
-    die("SendGrid API key missing! Please check your .env file.\n");
-}
-
-// --- Optional fallback for local dev ---
-if (!$EMAIL_FROM) { $EMAIL_FROM = "srgedaya@usa.edu.ph"; }
-if (!$EMAIL_FROM_NAME) { $EMAIL_FROM_NAME = "ManifestLink"; }
+// ...existing code...
 
 /**
  * Get HTML Email Template
