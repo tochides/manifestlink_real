@@ -1,22 +1,33 @@
 <?php
-require __DIR__ . '/vendor/autoload.php';
+define('RESEND_API_KEY', 're_8tNmSbdZ_KaWVDGuWpH6zpcVEmrqoMHkH');
+define('EMAIL_FROM', 'srgedaya@usa.edu.ph');
+define('EMAIL_FROM_NAME', 'ManifestLink');
+define('EMAIL_SUBJECT_PREFIX', 'ManifestLink - ');
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
 
 use Dotenv\Dotenv;
 use SendGrid\Mail\Mail;
+use Resend\Resend;
 
-// Load .env only if it exists (for local dev)
+// --- Load .env safely ---
 if (file_exists(__DIR__ . '/.env')) {
     $dotenv = Dotenv::createImmutable(__DIR__);
-    $dotenv->load();
+    $dotenv->safeLoad(); // safeLoad avoids errors if a variable is missing
 }
 
-// Get environment variables (Railway injects automatically)
-$SENDGRID_API_KEY   = getenv('SENDGRID_API_KEY');
-$EMAIL_FROM         = getenv('EMAIL_FROM');
-$EMAIL_FROM_NAME    = getenv('EMAIL_FROM_NAME');
+// --- Fetch environment variables ---
+$SENDGRID_API_KEY = getenv('SENDGRID_API_KEY') ?: ($_ENV['SENDGRID_API_KEY'] ?? null);
+$EMAIL_FROM       = getenv('EMAIL_FROM') ?: ($_ENV['EMAIL_FROM'] ?? null);
+$EMAIL_FROM_NAME  = getenv('EMAIL_FROM_NAME') ?: ($_ENV['EMAIL_FROM_NAME'] ?? null);
 
-// Optional fallback for local dev
-if (!$SENDGRID_API_KEY) { $SENDGRID_API_KEY = "your_local_test_key_here"; }
+// --- Validate API key ---
+if (!$SENDGRID_API_KEY) {
+    die("SendGrid API key missing! Please check your .env file.\n");
+}
+
+// --- Optional fallback for local dev ---
 if (!$EMAIL_FROM) { $EMAIL_FROM = "srgedaya@usa.edu.ph"; }
 if (!$EMAIL_FROM_NAME) { $EMAIL_FROM_NAME = "ManifestLink"; }
 
@@ -45,7 +56,7 @@ function getEmailTemplate($user_name, $otp) {
             </div>
             <div class='content'>
                 <h2>Hello {$user_name},</h2>
-                <p>You requested secure access to your QR code. To proceed, please use the verification code below:</p>
+                <p>You requested secure access to your QR code. Use the verification code below:</p>
                 
                 <div class='otp-box'>
                     <h3>Your Verification Code</h3>
@@ -57,7 +68,7 @@ function getEmailTemplate($user_name, $otp) {
                     <strong>⚠️ Security Notice:</strong><br>
                     • Never share this code with anyone<br>
                     • ManifestLink will never ask for this code via phone or text<br>
-                    • If you didn't request this code, please ignore this email
+                    • If you didn't request this code, ignore this email
                 </div>
                 
                 <p>Enter this code on the verification page to access your QR code.</p>
@@ -73,23 +84,33 @@ function getEmailTemplate($user_name, $otp) {
 }
 
 /**
- * Send OTP Email using SendGrid
+ * Send OTP Email using Resend API
  */
-function sendOTPEmail($to_email, $to_name, $otp) {
-    global $SENDGRID_API_KEY, $EMAIL_FROM, $EMAIL_FROM_NAME;
 
-    $email = new Mail();
-    $email->setFrom($EMAIL_FROM, $EMAIL_FROM_NAME);
-    $email->setSubject("Your ManifestLink Verification Code");
-    $email->addTo($to_email, $to_name);
-    $email->addContent("text/html", getEmailTemplate($to_name, $otp));
 
-    $sendgrid = new \SendGrid($SENDGRID_API_KEY);
+
+function sendOTPEmail($to_email, $user_name, $otp) {
+    if (!class_exists('Resend\\Resend')) {
+        error_log('Resend library not found. Please run composer install.');
+        return false;
+    }
     try {
-        $response = $sendgrid->send($email);
-        return $response->statusCode() >= 200 && $response->statusCode() < 300;
+        $resend = new Resend(RESEND_API_KEY);
+        $params = [
+            'from' => EMAIL_FROM,
+            'to' => [$to_email],
+            'subject' => EMAIL_SUBJECT_PREFIX . "QR Code Access Verification",
+            'html' => getEmailTemplate($user_name, $otp)
+        ];
+        $response = $resend->emails->send($params);
+        if (isset($response['id'])) {
+            return true;
+        } else {
+            error_log('Resend error: ' . json_encode($response));
+            return false;
+        }
     } catch (Exception $e) {
-        error_log("SendGrid Error: " . $e->getMessage());
+        error_log('Resend Exception: ' . $e->getMessage());
         return false;
     }
 }
