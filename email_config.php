@@ -1,39 +1,49 @@
 <?php
-define('RESEND_API_KEY', 're_8tNmSbdZ_KaWVDGuWpH6zpcVEmrqoMHkH');
-define('EMAIL_FROM', 'srgedaya@usa.edu.ph');
-define('EMAIL_FROM_NAME', 'ManifestLink');
-define('EMAIL_SUBJECT_PREFIX', 'ManifestLink - ');
+require __DIR__ . '/vendor/autoload.php';
 
-require_once __DIR__ . '/../vendor/autoload.php';
+const RESEND_API_KEY      = 're_8tNmSbdZ_KaWVDGuWpH6zpcVEmrqoMHkH';
+const EMAIL_FROM_REAL     = 'srgedaya@usa.edu.ph';        // real domain (needs verification)
+const EMAIL_FROM_SANDBOX  = 'test@yourdomain.onresend.com'; // fallback (replace with your Resend sandbox domain)
+const EMAIL_FROM_NAME     = 'ManifestLink';
+const EMAIL_SUBJECT_PREFIX = 'ManifestLink - ';
 
+function sendOTPEmail($to_email, $user_name, $otp) {
+    try {
+        $resend = \Resend::client(RESEND_API_KEY);
 
-use Dotenv\Dotenv;
-use SendGrid\Mail\Mail;
-use Resend\Resend;
+        // Default sender (real domain)
+        $from = EMAIL_FROM_NAME . ' <' . EMAIL_FROM_REAL . '>';
 
-// --- Load .env safely ---
-if (file_exists(__DIR__ . '/.env')) {
-    $dotenv = Dotenv::createImmutable(__DIR__);
-    $dotenv->safeLoad(); // safeLoad avoids errors if a variable is missing
+        // Build email params
+        $params = [
+            'from'    => $from,
+            'to'      => [$to_email],
+            'subject' => EMAIL_SUBJECT_PREFIX . "QR Code Access Verification",
+            'html'    => getEmailTemplate($user_name, $otp),
+        ];
+
+        try {
+            // First try with the real domain
+            $response = $resend->emails->send($params);
+            return isset($response->id);
+        } catch (\Exception $e) {
+            // If domain not verified, fall back to sandbox
+            if (str_contains($e->getMessage(), 'domain is not verified')) {
+                error_log("⚠️ Real domain not verified. Falling back to sandbox domain.");
+
+                $params['from'] = EMAIL_FROM_NAME . ' <' . EMAIL_FROM_SANDBOX . '>';
+                $response = $resend->emails->send($params);
+                return isset($response->id);
+            }
+            throw $e;
+        }
+
+    } catch (Exception $e) {
+        error_log('Resend Exception: ' . $e->getMessage());
+        return false;
+    }
 }
 
-// --- Fetch environment variables ---
-$SENDGRID_API_KEY = getenv('SENDGRID_API_KEY') ?: ($_ENV['SENDGRID_API_KEY'] ?? null);
-$EMAIL_FROM       = getenv('EMAIL_FROM') ?: ($_ENV['EMAIL_FROM'] ?? null);
-$EMAIL_FROM_NAME  = getenv('EMAIL_FROM_NAME') ?: ($_ENV['EMAIL_FROM_NAME'] ?? null);
-
-// --- Validate API key ---
-if (!$SENDGRID_API_KEY) {
-    die("SendGrid API key missing! Please check your .env file.\n");
-}
-
-// --- Optional fallback for local dev ---
-if (!$EMAIL_FROM) { $EMAIL_FROM = "srgedaya@usa.edu.ph"; }
-if (!$EMAIL_FROM_NAME) { $EMAIL_FROM_NAME = "ManifestLink"; }
-
-/**
- * Get HTML Email Template
- */
 function getEmailTemplate($user_name, $otp) {
     return "
     <html>
@@ -81,36 +91,4 @@ function getEmailTemplate($user_name, $otp) {
         </div>
     </body>
     </html>";
-}
-
-/**
- * Send OTP Email using Resend API
- */
-
-
-
-function sendOTPEmail($to_email, $user_name, $otp) {
-    if (!class_exists('Resend\\Resend')) {
-        error_log('Resend library not found. Please run composer install.');
-        return false;
-    }
-    try {
-        $resend = new Resend(RESEND_API_KEY);
-        $params = [
-            'from' => EMAIL_FROM,
-            'to' => [$to_email],
-            'subject' => EMAIL_SUBJECT_PREFIX . "QR Code Access Verification",
-            'html' => getEmailTemplate($user_name, $otp)
-        ];
-        $response = $resend->emails->send($params);
-        if (isset($response['id'])) {
-            return true;
-        } else {
-            error_log('Resend error: ' . json_encode($response));
-            return false;
-        }
-    } catch (Exception $e) {
-        error_log('Resend Exception: ' . $e->getMessage());
-        return false;
-    }
 }
