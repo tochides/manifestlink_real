@@ -1,37 +1,48 @@
 <?php
-define('RESEND_API_KEY', 're_8tNmSbdZ_KaWVDGuWpH6zpcVEmrqoMHkH');
-define('EMAIL_FROM', 'srgedaya@usa.edu.ph');
-define('EMAIL_FROM_NAME', 'ManifestLink');
-define('EMAIL_SUBJECT_PREFIX', 'ManifestLink - ');
+require __DIR__ . '/vendor/autoload.php';
 
-require_once __DIR__ . '/vendor/autoload.php';
-
-use Resend\Resend;
+const RESEND_API_KEY      = 're_8tNmSbdZ_KaWVDGuWpH6zpcVEmrqoMHkH';
+const EMAIL_FROM_REAL     = 'srgedaya@usa.edu.ph';        // real domain (needs verification)
+const EMAIL_FROM_SANDBOX  = 'test@yourdomain.onresend.com'; // fallback (replace with your Resend sandbox domain)
+const EMAIL_FROM_NAME     = 'ManifestLink';
+const EMAIL_SUBJECT_PREFIX = 'ManifestLink - ';
 
 function sendOTPEmail($to_email, $user_name, $otp) {
     try {
-        $resend = new Resend(RESEND_API_KEY);
+        $resend = \Resend::client(RESEND_API_KEY);
+
+        // Default sender (real domain)
+        $from = EMAIL_FROM_NAME . ' <' . EMAIL_FROM_REAL . '>';
+
+        // Build email params
         $params = [
-            'from' => EMAIL_FROM,
-            'to' => [$to_email],
+            'from'    => $from,
+            'to'      => [$to_email],
             'subject' => EMAIL_SUBJECT_PREFIX . "QR Code Access Verification",
-            'html' => getEmailTemplate($user_name, $otp)
+            'html'    => getEmailTemplate($user_name, $otp),
         ];
 
-        $response = $resend->emails->send($params);
+        try {
+            // First try with the real domain
+            $response = $resend->emails->send($params);
+            return isset($response->id);
+        } catch (\Exception $e) {
+            // If domain not verified, fall back to sandbox
+            if (str_contains($e->getMessage(), 'domain is not verified')) {
+                error_log("⚠️ Real domain not verified. Falling back to sandbox domain.");
 
-        if (isset($response->id)) {
-            return true;
-        } else {
-            error_log('Resend error: ' . json_encode($response));
-            return false;
+                $params['from'] = EMAIL_FROM_NAME . ' <' . EMAIL_FROM_SANDBOX . '>';
+                $response = $resend->emails->send($params);
+                return isset($response->id);
+            }
+            throw $e;
         }
+
     } catch (Exception $e) {
         error_log('Resend Exception: ' . $e->getMessage());
         return false;
     }
 }
- 
 
 function getEmailTemplate($user_name, $otp) {
     return "
@@ -81,6 +92,3 @@ function getEmailTemplate($user_name, $otp) {
     </body>
     </html>";
 }
-
-
-
