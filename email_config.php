@@ -4,7 +4,7 @@ define('EMAIL_FROM', 'srgedaya@usa.edu.ph');
 define('EMAIL_FROM_NAME', 'ManifestLink');
 define('EMAIL_SUBJECT_PREFIX', 'ManifestLink - ');
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 
 use Dotenv\Dotenv;
