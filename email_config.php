@@ -71,10 +71,6 @@ function getEmailTemplate($user_name, $otp) {
 
 
 function sendOTPEmail($to_email, $user_name, $otp) {
-    if (!class_exists('Resend\\Resend')) {
-        error_log('Resend library not found. Please run composer install.');
-        return false;
-    }
     try {
         $resend = new Resend(RESEND_API_KEY);
         $params = [
