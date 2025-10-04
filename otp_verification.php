@@ -5,22 +5,26 @@ include_once 'email_config.php'; // PHPMailer setup
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $otp   = rand(100000, 999999); // 6-digit OTP
+    $expires_at = date("Y-m-d H:i:s", strtotime("+10 minutes"));
+    $created_at = date("Y-m-d H:i:s");
+    $updated_at = $created_at;
 
     if (empty($email)) {
         echo "❌ Email is required.";
         exit;
     }
 
-    // ✅ Make sure to use the correct table: otp_verification (no "s")
-    // First delete any old OTPs for this email
+    // Remove old OTPs for this email
     $stmt = $conn->prepare("DELETE FROM otp_verification WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->close();
 
     // Insert new OTP
-    $stmt = $conn->prepare("INSERT INTO otp_verification (email, otp_code) VALUES (?, ?)");
-    $stmt->bind_param("ss", $email, $otp);
+    $stmt = $conn->prepare("INSERT INTO otp_verification (user_id, email, otp, expires_at, created_at, updated_at) 
+                            VALUES (?, ?, ?, ?, ?, ?)");
+    $user_id = 0; // default, or fetch actual user_id if available
+    $stmt->bind_param("isssss", $user_id, $email, $otp, $expires_at, $created_at, $updated_at);
     $stmt->execute();
     $stmt->close();
 
@@ -28,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $mail->addAddress($email);
         $mail->Subject = "Your OTP Code";
-        $mail->Body    = "Your OTP code is: <b>$otp</b>";
+        $mail->Body    = "Your OTP code is: <b>$otp</b><br>It will expire in 10 minutes.";
 
         if ($mail->send()) {
             echo "✅ OTP sent successfully to $email.";
@@ -40,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
