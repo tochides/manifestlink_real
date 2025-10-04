@@ -1,54 +1,42 @@
 <?php
 session_start();
+include_once "connection.php";   // DB connection
+include_once "email_config.php"; // PHPMailer + sendOTPEmail()
 
-require __DIR__ . '/vendor/autoload.php';
-include 'connect.php';
-include_once __DIR__ . '/email_config.php'; // ✅ only included once, function comes from here
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $email = $_POST['email'] ?? '';
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+    if (!empty($email)) {
+        // Generate OTP
+        $otp = rand(100000, 999999);
+        $expiry = date("Y-m-d H:i:s", strtotime("+10 minutes"));
 
-$message = '';
-$email = '';
+        // Insert OTP into DB
+        $stmt = $conn->prepare("INSERT INTO otp_codes (email, otp, expiry) VALUES (?, ?, ?)");
+        $stmt->bind_param("sis", $email, $otp, $expiry);
 
-// --- Request OTP ---
-if (isset($_POST['request_otp'])) {
-    $email = trim($_POST['email']);
-    $otp   = rand(100000, 999999);
-
-    // Save OTP in session & DB
-    $_SESSION['otp_email'] = $email;
-    $_SESSION['otp_code']  = $otp;
-    $_SESSION['otp_expiry'] = time() + 600; // 10 mins
-
-    $stmt = $conn->prepare("INSERT INTO otp_codes (email, otp, expiry) VALUES (?, ?, ?) 
-                            ON DUPLICATE KEY UPDATE otp=?, expiry=?");
-    $stmt->bind_param("siiii", $email, $otp, $_SESSION['otp_expiry'], $otp, $_SESSION['otp_expiry']);
-    $stmt->execute();
-
-    // Send OTP via email
-    if (sendOTPEmail($email, $email, $otp)) {
-        $message = "<div class='alert success'><i class='fas fa-check-circle'></i> 
-                        OTP sent successfully to {$email}</div>";
+        if ($stmt->execute()) {
+            // Send OTP email using PHPMailer
+            if (sendOTPEmail($email, "User", $otp)) {
+                // ✅ Redirect to OTP entry page
+                $_SESSION['otp_email'] = $email;
+                header("Location: verify_otp.php"); 
+                exit;
+            } else {
+                echo "Failed to send OTP email.";
+                exit;
+            }
+        } else {
+            echo "Database insert failed.";
+            exit;
+        }
     } else {
-        $message = "<div class='alert error'><i class='fas fa-exclamation-circle'></i> 
-                        Failed to send OTP. Please try again.</div>";
-    }
-}
-
-// --- Verify OTP ---
-if (isset($_POST['verify_otp'])) {
-    $inputOtp = trim($_POST['otp']);
-    if ($inputOtp == $_SESSION['otp_code'] && time() < $_SESSION['otp_expiry']) {
-        $message = "<div class='alert success'><i class='fas fa-check-circle'></i> 
-                        Verification successful! Access granted.</div>";
-        // TODO: Redirect to QR code page or dashboard
-    } else {
-        $message = "<div class='alert error'><i class='fas fa-times-circle'></i> 
-                        Invalid or expired OTP. Please try again.</div>";
+        echo "Email is required.";
+        exit;
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
