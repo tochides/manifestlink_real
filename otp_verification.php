@@ -1,4 +1,3 @@
-Try AI directly in your favorite apps … Use Gemini to generate drafts and refine content, plus get Gemini Pro with access to Google's next-gen AI for ₱1,100 ₱0 for 1 month
 <?php
 session_start();
 include 'connect.php';
@@ -370,3 +369,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['email'])) {
     </script>
 </body>
 </html> 
+
