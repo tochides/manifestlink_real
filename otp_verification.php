@@ -3,7 +3,7 @@ session_start();
 
 require __DIR__ . '/vendor/autoload.php';
 include 'connect.php';
-include 'email_config.php'; // Gmail PHPMailer
+include_once __DIR__ . '/email_config.php'; // ✅ only included once, function comes from here
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -11,133 +11,44 @@ use PHPMailer\PHPMailer\Exception;
 $message = '';
 $email = '';
 
-// --- Function to send OTP ---
-function sendOTPEmail($toEmail, $toName, $otp) {
-    $mail = new PHPMailer(true);
+// --- Request OTP ---
+if (isset($_POST['request_otp'])) {
+    $email = trim($_POST['email']);
+    $otp   = rand(100000, 999999);
 
-    try {
-        $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = EMAIL_FROM;
-        $mail->Password   = EMAIL_APP_PASSWORD;
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
+    // Save OTP in session & DB
+    $_SESSION['otp_email'] = $email;
+    $_SESSION['otp_code']  = $otp;
+    $_SESSION['otp_expiry'] = time() + 600; // 10 mins
 
-        $mail->setFrom(EMAIL_FROM, EMAIL_FROM_NAME);
-        $mail->addAddress($toEmail, $toName);
+    $stmt = $conn->prepare("INSERT INTO otp_codes (email, otp, expiry) VALUES (?, ?, ?) 
+                            ON DUPLICATE KEY UPDATE otp=?, expiry=?");
+    $stmt->bind_param("siiii", $email, $otp, $_SESSION['otp_expiry'], $otp, $_SESSION['otp_expiry']);
+    $stmt->execute();
 
-        $mail->isHTML(true);
-        $mail->Subject = 'Your ManifestLink OTP Code';
-        $mail->Body    = "
-            <h2>Hello, {$toName}</h2>
-            <p>Your One-Time Password (OTP) for accessing your QR code is:</p>
-            <div style='font-size:22px; font-weight:bold; color:#2563eb;'>{$otp}</div>
-            <p>This code will expire in 10 minutes.</p>
-            <p>If you did not request this, please ignore this email.</p>
-        ";
-
-        return $mail->send();
-    } catch (Exception $e) {
-        error_log("Email Error: {$mail->ErrorInfo}");
-        return false;
+    // Send OTP via email
+    if (sendOTPEmail($email, $email, $otp)) {
+        $message = "<div class='alert success'><i class='fas fa-check-circle'></i> 
+                        OTP sent successfully to {$email}</div>";
+    } else {
+        $message = "<div class='alert error'><i class='fas fa-exclamation-circle'></i> 
+                        Failed to send OTP. Please try again.</div>";
     }
 }
 
-// --- Handle OTP request ---
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_otp'])) {
-    $email = trim($_POST['email'] ?? '');
-
-    if (empty($email)) {
-        $message = '<div class="alert error">Please enter your email address.</div>';
+// --- Verify OTP ---
+if (isset($_POST['verify_otp'])) {
+    $inputOtp = trim($_POST['otp']);
+    if ($inputOtp == $_SESSION['otp_code'] && time() < $_SESSION['otp_expiry']) {
+        $message = "<div class='alert success'><i class='fas fa-check-circle'></i> 
+                        Verification successful! Access granted.</div>";
+        // TODO: Redirect to QR code page or dashboard
     } else {
-        $stmt = $conn->prepare("SELECT id, full_name FROM users WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows > 0) {
-            $user = $result->fetch_assoc();
-
-            $otp = sprintf("%06d", mt_rand(100000, 999999));
-            $expires = date('Y-m-d H:i:s', strtotime('+10 minutes'));
-
-            $otpStmt = $conn->prepare("
-                INSERT INTO otp_verification (user_id, email, otp, expires_at) 
-                VALUES (?, ?, ?, ?) 
-                ON DUPLICATE KEY UPDATE otp = ?, expires_at = ?
-            ");
-            $otpStmt->bind_param("isssss", $user['id'], $email, $otp, $expires, $otp, $expires);
-
-            if ($otpStmt->execute()) {
-                if (sendOTPEmail($email, $user['full_name'], $otp)) {
-                    $_SESSION['otp_email'] = $email;
-                    $message = '<div class="alert success">Verification code sent to your email!</div>';
-                } else {
-                    $message = '<div class="alert error">Failed to send verification code.</div>';
-                }
-            } else {
-                $message = '<div class="alert error">Error generating verification code.</div>';
-            }
-            $otpStmt->close();
-        } else {
-            $message = '<div class="alert error">No account found with this email.</div>';
-        }
-        $stmt->close();
-    }
-}
-
-// --- Handle OTP verification ---
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
-    $email = $_SESSION['otp_email'] ?? '';
-    $otp = trim($_POST['otp'] ?? '');
-
-    if (empty($email) || empty($otp)) {
-        $message = '<div class="alert error">Please enter the verification code.</div>';
-    } else {
-        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $userResult = $stmt->get_result();
-
-        if ($userResult->num_rows > 0) {
-            $user = $userResult->fetch_assoc();
-            $user_id = $user['id'];
-
-            $otpStmt = $conn->prepare("SELECT * FROM otp_verification WHERE user_id = ? AND otp = ?");
-            $otpStmt->bind_param("is", $user_id, $otp);
-            $otpStmt->execute();
-            $result = $otpStmt->get_result();
-
-            if ($result->num_rows > 0) {
-                $verification = $result->fetch_assoc();
-
-                if (strtotime($verification['expires_at']) > time()) {
-                    // ✅ Clear OTP & redirect
-                    $clear = $conn->prepare("DELETE FROM otp_verification WHERE user_id = ?");
-                    $clear->bind_param("i", $user_id);
-                    $clear->execute();
-
-                    unset($_SESSION['otp_email']);
-
-                    // Smooth redirect (instead of white screen)
-                    echo "<script>alert('OTP verified successfully! Redirecting...'); 
-                          window.location='generatedqr.php?user_id={$user_id}&verified=1';</script>";
-                    exit;
-                } else {
-                    $message = '<div class="alert error">Verification code expired.</div>';
-                }
-            } else {
-                $message = '<div class="alert error">Invalid verification code.</div>';
-            }
-            $otpStmt->close();
-        } else {
-            $message = '<div class="alert error">User not found. Request a new code.</div>';
-        }
+        $message = "<div class='alert error'><i class='fas fa-times-circle'></i> 
+                        Invalid or expired OTP. Please try again.</div>";
     }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -155,7 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_otp'])) {
             padding: 2rem;
             background: white;
             border-radius: 16px;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 
+                        0 10px 10px -5px rgba(0,0,0,0.04);
         }
         .otp-header { text-align: center; margin-bottom: 2rem; }
         .otp-header img { width: 80px; height: 80px; margin-bottom: 1rem; }
