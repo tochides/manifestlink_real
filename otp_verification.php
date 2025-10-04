@@ -1,68 +1,46 @@
 <?php
-session_start();
+include_once 'connect.php';
+include_once 'email_config.php'; // PHPMailer setup
 
-include_once __DIR__ . "/connect.php";
-include_once __DIR__ . "/email_config.php";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = trim($_POST['email']);
+    $otp   = rand(100000, 999999); // 6-digit OTP
 
-$message = "";
-
-// Request OTP
-if (isset($_POST['request_otp'])) {
-    $email = trim($_POST['email'] ?? '');
-
-    if ($email === '') {
-        $message = "<div class='alert error'>Email is required.</div>";
-    } else {
-        // Generate OTP
-        $otp = rand(100000, 999999);
-        $expires_at = date("Y-m-d H:i:s", strtotime("+10 minutes"));
-
-        // Delete old
-        $del = $conn->prepare("DELETE FROM otp_verifications WHERE email = ?");
-        $del->bind_param("s", $email);
-        $del->execute();
-
-        // Insert new
-        $stmt = $conn->prepare("INSERT INTO otp_verifications (email, otp, expires_at) VALUES (?, ?, ?)");
-        $stmt->bind_param("sss", $email, $otp, $expires_at);
-        $stmt->execute();
-
-        // Send email
-        sendOTPEmail($email, "User", $otp);
-
-        $_SESSION['otp_email'] = $email;
-        $message = "<div class='alert success'>OTP sent to <b>$email</b>. It expires in 10 minutes.</div>";
+    if (empty($email)) {
+        echo "❌ Email is required.";
+        exit;
     }
-}
 
-// Verify OTP
-if (isset($_POST['verify_otp'])) {
-    $email = $_SESSION['otp_email'] ?? '';
-    $otp   = trim($_POST['otp'] ?? '');
+    // ✅ Make sure to use the correct table: otp_verification (no "s")
+    // First delete any old OTPs for this email
+    $stmt = $conn->prepare("DELETE FROM otp_verification WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $stmt->close();
 
-    if ($email === '' || $otp === '') {
-        $message = "<div class='alert error'>Please enter the OTP.</div>";
-    } else {
-        $stmt = $conn->prepare("SELECT * FROM otp_verifications WHERE email = ? AND otp = ? AND expires_at > NOW()");
-        $stmt->bind_param("ss", $email, $otp);
-        $stmt->execute();
-        $result = $stmt->get_result();
+    // Insert new OTP
+    $stmt = $conn->prepare("INSERT INTO otp_verification (email, otp_code) VALUES (?, ?)");
+    $stmt->bind_param("ss", $email, $otp);
+    $stmt->execute();
+    $stmt->close();
 
-        if ($row = $result->fetch_assoc()) {
-            // Delete used OTP
-            $del = $conn->prepare("DELETE FROM otp_verifications WHERE email = ?");
-            $del->bind_param("s", $email);
-            $del->execute();
+    // Send email with PHPMailer
+    try {
+        $mail->addAddress($email);
+        $mail->Subject = "Your OTP Code";
+        $mail->Body    = "Your OTP code is: <b>$otp</b>";
 
-            // ✅ Redirect after success
-            header("Location: qr_page.php"); 
-            exit;
+        if ($mail->send()) {
+            echo "✅ OTP sent successfully to $email.";
         } else {
-            $message = "<div class='alert error'>Invalid or expired OTP.</div>";
+            echo "❌ Failed to send OTP Email.";
         }
+    } catch (Exception $e) {
+        echo "❌ Mailer Error: " . $mail->ErrorInfo;
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
