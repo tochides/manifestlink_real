@@ -1,45 +1,33 @@
 <?php
 require __DIR__ . '/vendor/autoload.php';
 
-const RESEND_API_KEY      = 're_8tNmSbdZ_KaWVDGuWpH6zpcVEmrqoMHkH';
-const EMAIL_FROM_REAL     = 'srgedaya@usa.edu.ph';        // real domain (needs verification)
-const EMAIL_FROM_SANDBOX  = 'test@yourdomain.onresend.com'; // fallback (replace with your Resend sandbox domain)
+const EMAIL_FROM          = 'srgedaya@usa.edu.ph';
 const EMAIL_FROM_NAME     = 'ManifestLink';
 const EMAIL_SUBJECT_PREFIX = 'ManifestLink - ';
 
 function sendOTPEmail($to_email, $user_name, $otp) {
+    if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+        error_log('PHPMailer library not found. Please run composer install.');
+        return false;
+    }
     try {
-        $resend = \Resend::client(RESEND_API_KEY);
-
-        // Default sender (real domain)
-        $from = EMAIL_FROM_NAME . ' <' . EMAIL_FROM_REAL . '>';
-
-        // Build email params
-        $params = [
-            'from'    => $from,
-            'to'      => [$to_email],
-            'subject' => EMAIL_SUBJECT_PREFIX . "QR Code Access Verification",
-            'html'    => getEmailTemplate($user_name, $otp),
-        ];
-
-        try {
-            // First try with the real domain
-            $response = $resend->emails->send($params);
-            return isset($response->id);
-        } catch (\Exception $e) {
-            // If domain not verified, fall back to sandbox
-            if (str_contains($e->getMessage(), 'domain is not verified')) {
-                error_log("⚠️ Real domain not verified. Falling back to sandbox domain.");
-
-                $params['from'] = EMAIL_FROM_NAME . ' <' . EMAIL_FROM_SANDBOX . '>';
-                $response = $resend->emails->send($params);
-                return isset($response->id);
-            }
-            throw $e;
-        }
-
+        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+    $mail->Username = EMAIL_FROM;
+    $mail->Password = 'xnfmp owi zbav qcoo';
+        $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 587;
+        $mail->setFrom(EMAIL_FROM, EMAIL_FROM_NAME);
+        $mail->addAddress($to_email, $user_name);
+        $mail->isHTML(true);
+        $mail->Subject = EMAIL_SUBJECT_PREFIX . "QR Code Access Verification";
+        $mail->Body = getEmailTemplate($user_name, $otp);
+        $mail->send();
+        return true;
     } catch (Exception $e) {
-        error_log('Resend Exception: ' . $e->getMessage());
+        error_log('PHPMailer Exception: ' . $e->getMessage());
         return false;
     }
 }
