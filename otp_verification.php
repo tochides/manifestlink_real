@@ -1,49 +1,56 @@
 <?php
 include_once 'connect.php';
-include_once 'email_config.php'; // PHPMailer setup
+include_once 'email_config.php';
+session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email']);
-    $otp   = rand(100000, 999999); // 6-digit OTP
+    $email = trim($_POST['email'] ?? '');
+    $otp = rand(100000, 999999);
     $expires_at = date("Y-m-d H:i:s", strtotime("+10 minutes"));
     $created_at = date("Y-m-d H:i:s");
-    $updated_at = $created_at;
+    $updated_at = date("Y-m-d H:i:s");
 
-    if (empty($email)) {
-        echo "❌ Email is required.";
-        exit;
-    }
+    if ($email) {
+        // ✅ Step 1: Find user_id from email
+        $stmt = $conn->prepare("SELECT id, full_name FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $res = $stmt->get_result();
 
-    // Remove old OTPs for this email
-    $stmt = $conn->prepare("DELETE FROM otp_verification WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $stmt->close();
-
-    // Insert new OTP
-    $stmt = $conn->prepare("INSERT INTO otp_verification (user_id, email, otp, expires_at, created_at, updated_at) 
-                            VALUES (?, ?, ?, ?, ?, ?)");
-    $user_id = 0; // default, or fetch actual user_id if available
-    $stmt->bind_param("isssss", $user_id, $email, $otp, $expires_at, $created_at, $updated_at);
-    $stmt->execute();
-    $stmt->close();
-
-    // Send email with PHPMailer
-    try {
-        $mail->addAddress($email);
-        $mail->Subject = "Your OTP Code";
-        $mail->Body    = "Your OTP code is: <b>$otp</b><br>It will expire in 10 minutes.";
-
-        if ($mail->send()) {
-            echo "✅ OTP sent successfully to $email.";
+        if ($row = $res->fetch_assoc()) {
+            $user_id = $row['id'];
+            $user_name = $row['full_name'];
         } else {
-            echo "❌ Failed to send OTP Email.";
+            echo "❌ No user found with this email.";
+            exit();
         }
-    } catch (Exception $e) {
-        echo "❌ Mailer Error: " . $mail->ErrorInfo;
+        $stmt->close();
+
+        // ✅ Step 2: Delete old OTPs for this user
+        $stmt = $conn->prepare("DELETE FROM otp_verification WHERE user_id = ?");
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $stmt->close();
+
+        // ✅ Step 3: Insert new OTP linked to user_id
+        $stmt = $conn->prepare("INSERT INTO otp_verification (user_id, email, otp, expires_at, created_at, updated_at) 
+                                VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("isssss", $user_id, $email, $otp, $expires_at, $created_at, $updated_at);
+        if ($stmt->execute()) {
+            // ✅ Step 4: Send email with OTP
+            if (sendOTPEmail($email, $user_name, $otp)) {
+                echo "✅ OTP sent successfully!";
+            } else {
+                echo "❌ Failed to send OTP Email.";
+            }
+        } else {
+            echo "❌ Database error inserting OTP.";
+        }
+        $stmt->close();
     }
 }
 ?>
+
 
 
 <!DOCTYPE html>
