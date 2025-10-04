@@ -1,41 +1,40 @@
 <?php
 session_start();
-include_once "connection.php";   // DB connection
-include_once "email_config.php"; // PHPMailer + sendOTPEmail()
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST['email'] ?? '';
+// ✅ Always use absolute paths
+include_once __DIR__ . "/connection.php";
+include_once __DIR__ . "/email_config.php";
 
-    if (!empty($email)) {
-        // Generate OTP
-        $otp = rand(100000, 999999);
-        $expiry = date("Y-m-d H:i:s", strtotime("+10 minutes"));
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = trim($_POST['email'] ?? '');
+    $otp   = trim($_POST['otp'] ?? '');
 
-        // Insert OTP into DB
-        $stmt = $conn->prepare("INSERT INTO otp_codes (email, otp, expiry) VALUES (?, ?, ?)");
-        $stmt->bind_param("sis", $email, $otp, $expiry);
+    if ($email === '' || $otp === '') {
+        echo json_encode(["status" => "error", "message" => "Email and OTP are required."]);
+        exit;
+    }
 
-        if ($stmt->execute()) {
-            // Send OTP email using PHPMailer
-            if (sendOTPEmail($email, "User", $otp)) {
-                // ✅ Redirect to OTP entry page
-                $_SESSION['otp_email'] = $email;
-                header("Location: verify_otp.php"); 
-                exit;
-            } else {
-                echo "Failed to send OTP email.";
-                exit;
-            }
-        } else {
-            echo "Database insert failed.";
-            exit;
-        }
+    // ✅ Use prepared statements
+    $stmt = $conn->prepare("SELECT * FROM otp_verifications WHERE email = ? AND otp = ? AND expires_at > NOW()");
+    $stmt->bind_param("ss", $email, $otp);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($row = $result->fetch_assoc()) {
+        // OTP is valid → delete it so it can't be reused
+        $del = $conn->prepare("DELETE FROM otp_verifications WHERE email = ?");
+        $del->bind_param("s", $email);
+        $del->execute();
+
+        echo json_encode(["status" => "success", "message" => "OTP verified successfully!"]);
+        exit;
     } else {
-        echo "Email is required.";
+        echo json_encode(["status" => "error", "message" => "Invalid or expired OTP."]);
         exit;
     }
 }
 ?>
+
 
 
 <!DOCTYPE html>
