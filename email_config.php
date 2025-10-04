@@ -10,24 +10,33 @@ function sendOTPEmail($to_email, $user_name, $otp) {
         error_log('PHPMailer library not found. Please run composer install.');
         return false;
     }
+    error_log("[DEBUG] sendOTPEmail called for $to_email, user: $user_name, otp: $otp");
     try {
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+        error_log("[DEBUG] PHPMailer instance created");
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-    $mail->Username = EMAIL_FROM;
-    $mail->Password = 'xnfmp owi zbav qcoo';
+        $mail->Username = EMAIL_FROM;
+        $mail->Password = 'xnfmp owi zbav qcoo';
         $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
+        error_log("[DEBUG] SMTP settings configured");
         $mail->setFrom(EMAIL_FROM, EMAIL_FROM_NAME);
         $mail->addAddress($to_email, $user_name);
+        error_log("[DEBUG] Recipients set: from " . EMAIL_FROM . " to $to_email");
         $mail->isHTML(true);
         $mail->Subject = EMAIL_SUBJECT_PREFIX . "QR Code Access Verification";
         $mail->Body = getEmailTemplate($user_name, $otp);
+        error_log("[DEBUG] Email content set");
         $mail->send();
+        error_log("[DEBUG] Email sent successfully");
         return true;
     } catch (Exception $e) {
-        error_log('PHPMailer Exception: ' . $e->getMessage());
+        error_log('[DEBUG] PHPMailer Exception: ' . $e->getMessage());
+        if (isset($mail) && property_exists($mail, 'ErrorInfo')) {
+            error_log('[DEBUG] PHPMailer ErrorInfo: ' . $mail->ErrorInfo);
+        }
         return false;
     }
 }
