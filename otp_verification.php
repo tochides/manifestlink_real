@@ -1,42 +1,68 @@
 <?php
 session_start();
 
-// ✅ Always use absolute paths
 include_once __DIR__ . "/connect.php";
 include_once __DIR__ . "/email_config.php";
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+$message = "";
+
+// Request OTP
+if (isset($_POST['request_otp'])) {
     $email = trim($_POST['email'] ?? '');
-    $otp   = trim($_POST['otp'] ?? '');
 
-    if ($email === '' || $otp === '') {
-        echo json_encode(["status" => "error", "message" => "Email and OTP are required."]);
-        exit;
-    }
+    if ($email === '') {
+        $message = "<div class='alert error'>Email is required.</div>";
+    } else {
+        // Generate OTP
+        $otp = rand(100000, 999999);
+        $expires_at = date("Y-m-d H:i:s", strtotime("+10 minutes"));
 
-    // ✅ Use prepared statements
-    $stmt = $conn->prepare("SELECT * FROM otp_verifications WHERE email = ? AND otp = ? AND expires_at > NOW()");
-    $stmt->bind_param("ss", $email, $otp);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($row = $result->fetch_assoc()) {
-        // OTP is valid → delete it so it can't be reused
+        // Delete old
         $del = $conn->prepare("DELETE FROM otp_verifications WHERE email = ?");
         $del->bind_param("s", $email);
         $del->execute();
 
-        echo json_encode(["status" => "success", "message" => "OTP verified successfully!"]);
-        exit;
+        // Insert new
+        $stmt = $conn->prepare("INSERT INTO otp_verifications (email, otp, expires_at) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $email, $otp, $expires_at);
+        $stmt->execute();
+
+        // Send email
+        sendOTPEmail($email, "User", $otp);
+
+        $_SESSION['otp_email'] = $email;
+        $message = "<div class='alert success'>OTP sent to <b>$email</b>. It expires in 10 minutes.</div>";
+    }
+}
+
+// Verify OTP
+if (isset($_POST['verify_otp'])) {
+    $email = $_SESSION['otp_email'] ?? '';
+    $otp   = trim($_POST['otp'] ?? '');
+
+    if ($email === '' || $otp === '') {
+        $message = "<div class='alert error'>Please enter the OTP.</div>";
     } else {
-        echo json_encode(["status" => "error", "message" => "Invalid or expired OTP."]);
-        exit;
+        $stmt = $conn->prepare("SELECT * FROM otp_verifications WHERE email = ? AND otp = ? AND expires_at > NOW()");
+        $stmt->bind_param("ss", $email, $otp);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($row = $result->fetch_assoc()) {
+            // Delete used OTP
+            $del = $conn->prepare("DELETE FROM otp_verifications WHERE email = ?");
+            $del->bind_param("s", $email);
+            $del->execute();
+
+            // ✅ Redirect after success
+            header("Location: qr_page.php"); 
+            exit;
+        } else {
+            $message = "<div class='alert error'>Invalid or expired OTP.</div>";
+        }
     }
 }
 ?>
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,15 +73,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
     <style>
-        .otp-container {
-            max-width: 500px;
-            margin: 50px auto;
-            padding: 2rem;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 
-                        0 10px 10px -5px rgba(0,0,0,0.04);
-        }
+        /* same CSS as before */
+        .otp-container { max-width: 500px; margin: 50px auto; padding: 2rem; background: white; border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); }
         .otp-header { text-align: center; margin-bottom: 2rem; }
         .otp-header img { width: 80px; height: 80px; margin-bottom: 1rem; }
         .otp-header h1 { color: #1f2937; font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem; }
@@ -96,9 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form method="POST" class="otp-form">
             <div class="form-group">
                 <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
-                <input type="email" id="email" name="email"
-                       value="<?php echo htmlspecialchars($_SESSION['prefill_email'] ?? '', ENT_QUOTES); ?>"
-                       required placeholder="Enter your registered email">
+                <input type="email" id="email" name="email" required placeholder="Enter your registered email">
             </div>
             <button type="submit" name="request_otp" class="btn btn-primary">
                 <i class="fas fa-paper-plane"></i> Send Verification Code
@@ -109,8 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form method="POST" class="otp-form">
             <div class="form-group">
                 <label for="otp"><i class="fas fa-key"></i> Verification Code</label>
-                <input type="text" id="otp" name="otp" class="otp-input" maxlength="6" required
-                       placeholder="000000" pattern="[0-9]{6}">
+                <input type="text" id="otp" name="otp" class="otp-input" maxlength="6" required placeholder="000000" pattern="[0-9]{6}">
                 <small style="color: #6b7280; display:block; margin-top:0.5rem;">
                     Enter the 6-digit code sent to <?php echo htmlspecialchars($_SESSION['otp_email'], ENT_QUOTES); ?>
                 </small>
@@ -134,17 +151,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a href="index.html"><i class="fas fa-arrow-left"></i> Back to Home</a>
     </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const otpInput = document.getElementById('otp');
-    if (otpInput) {
-        otpInput.focus();
-        otpInput.addEventListener('input', function() {
-            this.value = this.value.replace(/[^0-9]/g, '').substring(0, 6);
-        });
-    }
-});
-</script>
 </body>
 </html>
